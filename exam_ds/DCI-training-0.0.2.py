@@ -61,7 +61,7 @@ data_labels=[]
 plt.figure(figsize=(8, 35))
 for idx, folder in enumerate(folders):
     #Load one folder at a time
-    data=OdometryDataset("../data",[folder],transform=ToTensor())
+    data=OdometryDataset("../data_ds",[folder],transform=ToTensor())
     #Skip last label from previous dataset
     while labs[ind][3]==-2:
         ind=ind+1               
@@ -99,7 +99,7 @@ for idx, folder in enumerate(folders):
     plt.grid(b=True,axis='y')   
     data_labels.append(label)
 # Create dataset reader.
-T=OdometryDataset("../data",folders,transform=ToTensor())
+T=OdometryDataset(".._ds",folders,transform=ToTensor())
 
     
 #load pretrained model or create new one.
@@ -353,7 +353,7 @@ plt.figure()
 # Evaluate in unknown data to the network.
 nfolders=[]
 nfolders.append("/static/dataset-04/")
-Test=OdometryDataset("./../data/",nfolders,transform=ToTensor())
+Test=OdometryDataset("./../data_ds/",nfolders,transform=ToTensor())
 test_Loader = DataLoader(Test, batch_size=1,shuffle=False, num_workers=1)
 
 pred=[]

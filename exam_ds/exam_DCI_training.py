@@ -32,15 +32,15 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 try:
     import os
     #print(os.getcwd())
-    os.chdir("python")
+    os.chdir("exam_ds")
     #print(os.getcwd())
 except:
     pass
 
 #Import python functions.
 try:
-    from python.dataset import OdometryDataset
-    from python.dataset import ToTensor
+    from exam_ds.dataset import OdometryDataset
+    from exam_ds.dataset import ToTensor
 except:
     from dataset import OdometryDataset
     from dataset import ToTensor
@@ -108,7 +108,7 @@ def plot_data_labels(folders, labs):
     plt.figure(figsize=(8, 35))
     for idx, folder in enumerate(folders):
         #Load one folder at a time
-        data=OdometryDataset("../data",[folder],transform=ToTensor())
+        data=OdometryDataset("../data_ds",[folder],transform=ToTensor())
         #Skip last label from previous dataset
         while labs[ind][3]==-2:
             ind=ind+1               
@@ -331,7 +331,7 @@ def plot_pred_speed_test(model):
     # Evaluate in unknown data to the network.
     nfolders=[]
     nfolders.append("/static/dataset-04/")
-    Test=OdometryDataset("./../data/",nfolders,transform=ToTensor())
+    Test=OdometryDataset("./../data_ds/",nfolders,transform=ToTensor())
     test_Loader = DataLoader(Test, batch_size=1,shuffle=False, num_workers=1)
 
     pred=[]
@@ -459,7 +459,7 @@ def load_dataset():
     data_labels = plot_data_labels(folders, labs)
     
     # Create dataset reader.
-    T = OdometryDataset("../data", folders, transform=ToTensor())
+    T = OdometryDataset("../data_ds", folders, transform=ToTensor())
     return T,  data_labels
 
 def get_model_from_new_training(T, epochs_num=10, save_model=False):
