@@ -10,12 +10,6 @@
 # Licence.txt, included with the software, for details.
 
 
-#set options
-load_model = False
-save_model = True
-train_model= True
-
-
 import torch
 import pandas as pd
 import os
@@ -157,7 +151,7 @@ def exam_dataset(T):
     pass
 
 #plot velocity and speed.
-def plot_vel_sp(T):
+def plot_dataset(T):
     velo=[]
     sp=[]
     t=[]
@@ -372,7 +366,7 @@ def plot_pred_speed_test(model):
     axes.legend()
 
 
-def train_model(model, T):
+def train_model(model, T, epochs_num=10):
 
     #Configure data loaders and optimizer
     learning_rate = 1e-6
@@ -393,11 +387,10 @@ def train_model(model, T):
     #define optimizer.
     optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
 
-    l=[]
-    val=[]
+    tls=[]
+    vls=[]
 
     # Epochs
-    epochs_num = 10
     for t in range(epochs_num):
         print("epochs {}".format(t))
         ti = time.time()
@@ -441,22 +434,23 @@ def train_model(model, T):
             #val_loss +=np.sum(loss.data[0])
             val_loss += loss.data
         # Save loss and print status.
-        l.append(acc_loss/(len(T)*9/10))
-        val.append(val_loss/(len(T)/10))
+        tls.append(acc_loss/(len(T)*9/10))
+        vls.append(val_loss/(len(T)/10))
         print("epoch\t", t)
-        print("loss_train\t", l[-1])
-        print("loss_val\t", val[-1])
+        print("loss_train\t", tls[-1])
+        print("loss_val\t", vls[-1])
         elapsed = time.time() - ti
         print("elapsed (sec)\t", elapsed)
         
+    return tls, vls
+
+def plot_traning(tls, vls):
     # Plot loss
     plt.figure()
-    plt.plot(np.log(np.array(l)),label = 'Training loss')
-    plt.plot(np.log(np.array(val)),label = 'Validation loss')
-    return l, val
+    plt.plot(np.log(np.array(tls)),label = 'Training loss')
+    plt.plot(np.log(np.array(vls)),label = 'Validation loss')
 
-
-if __name__ == "__main__":
+def load_dataset():
 
     folders, labs = get_data_folders_and_labs()
 
@@ -464,30 +458,35 @@ if __name__ == "__main__":
     
     # Create dataset reader.
     T = OdometryDataset("../data", folders, transform=ToTensor())
-    exam_dataset(T)
-    plot_vel_sp(T)
+    return T,  data_labels
 
+def get_model_from_new_training(T, epochs_num=10, save_model=False):
     model = None
+    tls, vls = None, None
     try:    
-        #load pretrained model or create new one.
-        if load_model:
-            model= torch.load('./full_new.pt', map_location=lambda storage, loc: storage)
+        model=vel_regressor(Nout=1, Nlinear=7440)
+        if train_model:
+            tls, vls = train_model(model, T, epochs_num=epochs_num)
         else:
-            model=vel_regressor(Nout=1, Nlinear=7440)
-            if train_model:
-                train_model(model, T)
-            else:
-                raise ValueError("What?")
+            raise ValueError("What?")
     except Exception as ex:
         print("Exception occured: ", ex)
         print(traceback.format_exc())
 
-
     #save model
     if save_model:
         torch.save(model,'./full_new.pt')
+    return model, tls, vls
 
-    ordered_Loader = DataLoader(T, batch_size=1,shuffle=False, num_workers=1)
+def get_model_from_trained_model():
+    model= torch.load('./full_new.pt', map_location=lambda storage, loc: storage)
+    return model
+
+def exam_model(model):
+    pass
+
+def plot_model_and_pred(model, T, data_labels):
+    ordered_Loader = DataLoader(T, batch_size=1, shuffle=False, num_workers=1)
 
     # Load corresponding prediction and ground truth
     plot_pred_speed_ordered(model, ordered_Loader)
@@ -496,7 +495,37 @@ if __name__ == "__main__":
 
     plot_pred_speed_test(model)
 
+
+def run_main(load_model=False):
+
+    T, data_labels = load_dataset()
+
+    exam_dataset(T)
+    plot_dataset(T)
+
+    model = None
+    try:    
+        #load pretrained model or create new one.
+        if load_model:
+            model = get_model_from_trained_model()
+        else:
+            model, tls, vls = get_model_from_new_training(T, epochs_num=1)
+            plot_traning(tls, vls)
+    
+    except Exception as ex:
+        print("Exception occured: ", ex)
+        print(traceback.format_exc())
+
+    exam_model(model)
+    plot_model_and_pred(model, T, data_labels)
+
     plt.show()
+
+
+if __name__ == "__main__":
+
+    run_main(load_model=False)
+
 
 
 
