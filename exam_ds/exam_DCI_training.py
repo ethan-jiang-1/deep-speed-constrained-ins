@@ -53,21 +53,21 @@ class vel_regressor(torch.nn.Module):
         super(vel_regressor, self).__init__()
         # Convolutional layers
         self.model1 = torch.nn.Sequential(
-        torch.nn.Conv1d(Nin,60,kernel_size=3,stride=1,groups=Nin),
+        torch.nn.Conv1d(Nin, 60, kernel_size=3, stride=1, groups=Nin),
         torch.nn.ReLU(),
-        torch.nn.Conv1d(60,120,kernel_size=3,stride=1,groups=Nin),
+        torch.nn.Conv1d(60, 120, kernel_size=3, stride=1, groups=Nin),
         torch.nn.ReLU(),
-        torch.nn.Conv1d(120,60,kernel_size=3,stride=1),
+        torch.nn.Conv1d(120, 60, kernel_size=3, stride=1),
         torch.nn.ReLU(),
         torch.nn.MaxPool1d(10, stride=6),
         )
         # Fully connected layers
         self.model2=model2=torch.nn.Sequential(
-        torch.nn.Linear(Nlinear, 10*40),
+        torch.nn.Linear(Nlinear, 10*30),
         torch.nn.ReLU(),
-        torch.nn.Linear(10*40, 100),
+        torch.nn.Linear(10*30, 9),
         torch.nn.ReLU(),
-        torch.nn.Linear(100, Nout)
+        torch.nn.Linear(9, Nout)
         )
         
     # Forward pass
@@ -468,10 +468,9 @@ def load_dataset():
 
 def exam_model(model):
     if not hasattr(model, "model_examed"):
-        if not torch.cuda.is_available():
-            print(model)
-            #summary(model, (6, 200))
-            model.model_examed = True
+        print(model)
+        summary(model, (6, 200))
+        model.model_examed = True
 
 def get_model_from_new_training(T, epochs_num=10, save_model=False):
     model = None
