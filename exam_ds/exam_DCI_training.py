@@ -22,6 +22,7 @@ import subprocess
 import time
 import csv
 import traceback
+import math
 from torchsummary import summary
 
 # dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -62,20 +63,24 @@ class vel_regressor(torch.nn.Module):
         torch.nn.MaxPool1d(10, stride=6),
         )
         # Fully connected layers
-        self.model2=model2=torch.nn.Sequential(
+        self.model2 = torch.nn.Sequential(
         torch.nn.Linear(Nlinear, 10*40),
         torch.nn.ReLU(),
         torch.nn.Linear(10*40, 100),
         torch.nn.ReLU(),
-        torch.nn.Linear(100, Nout)
-        )
+        torch.nn.Linear(100, 3))
         
     # Forward pass
     def forward(self, x):
         x = self.model1(x)
         x = x.view(x.size(0), -1)
         x = self.model2(x)
-        return x
+        y = torch.norm(x, dim=1)
+        return y
+        # y = np.zeros((x.shape[0],1))
+        # for i in range(x.shape[0]):
+        #     y[i, 0] = math.sqrt(x[i, 0]*x[i, 0] + x[i, 1]*x[i, 1] + x[i, 2]*x[i, 2])
+        # return torch.from_numpy(y)
 
 def get_data_folders_and_labs():
     #add path to used folders
@@ -368,13 +373,34 @@ def plot_pred_speed_test(model):
     axes.set_ylim([0.0,2])
     axes.legend()
 
+loss_fn = torch.nn.MSELoss(reduction='sum')
+def compute_loss(model, data):
+    #loss_fn = torch.nn.MSELoss(reduction='sum')
+
+    x_features = Variable(data['imu'].float())
+    # shape of x_features [10, 6, 200]
+    y_pred = model(x_features)
+    # shape of y_pred [10, 1]
+    y_pred_val = y_pred.view(-1)
+    # [10]
+
+    # Sample corresponding ground truth.
+    # shape of y_gt [10, 3]  
+    y_gt = torch.norm(data['gt'], 2, 1).type(torch.FloatTensor)
+    # [10, 1]
+    y_gt_val =  Variable(y_gt)
+    # [10]
+
+    # Compute and print loss.
+    loss = loss_fn(y_pred_val, y_gt_val)
+    return loss
+
 
 def train_model(model, T, epochs_num=10):
 
     #Configure data loaders and optimizer
     learning_rate = 1e-6
-    loss_fn = torch.nn.MSELoss(size_average=False)
-    
+
     index=np.arange(len(T))
     np.random.shuffle(index)
     train = index[1:int(np.floor(len(T)/10*9))]
@@ -403,21 +429,9 @@ def train_model(model, T, epochs_num=10):
         for i_batch, sample_batched in enumerate(training_loader):
             # Sample data.
             data = sample_batched
-            x_features = Variable(data['imu'].float())
-            # Forward pass.
-            y_pred = model(x_features)
-            # shape of x_features [10, 6, 200]
-
-            # Sample corresponding ground truth.
-            y_gt = torch.norm(data['gt'], 2, 1).type(torch.FloatTensor)
-            y_gt_val =  Variable(y_gt)
-            y_pred_val = y_pred.view(-1)
-            # Compute and print loss.
-            loss = loss_fn(y_pred_val, y_gt_val)
-
-            # Save loss.
-            # acc_loss +=np.sum(loss.data[0])
+            loss = compute_loss(model, data)
             acc_loss += loss.data
+
             # Zero the gradients before running the backward pass.
             model.zero_grad()
             # Backward pass.
@@ -429,23 +443,14 @@ def train_model(model, T, epochs_num=10):
         for i_batch, sample_batched in enumerate(validation_loader):
             # Sample data.
             data=sample_batched
-            # Forward pass. 
-            x_features = Variable(data['imu'].float())  
-            y_pred =model(x_features) 
-
-            y_gt =torch.norm(data['gt'],2,1).type(torch.FloatTensor)
-            y = Variable(y_gt)
-            loss = loss_fn(y_pred.view(-1), y)
-            
-            #val_loss +=np.sum(loss.data[0])
+            loss = compute_loss(model, data)
             val_loss += loss.data
+
         # Save loss and print status.
         tls.append(acc_loss/(len(T)*9/10))
         vls.append(val_loss/(len(T)/10))
-        # print("epoch\t", t)
         elapsed = time.time() - ti        
-        #print("loss_train\t", tls[-1])
-        #print("loss_val\t", vls[-1])
+
         print("epochs {} elapsed: {:.2f}(sec)\t\tloss_train: {:.4f}\tloss_val: {:.4f}".format(t, elapsed, tls[-1], vls[-1]))
         
     return tls, vls
