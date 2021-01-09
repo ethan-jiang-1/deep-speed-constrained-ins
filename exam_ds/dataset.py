@@ -87,7 +87,7 @@ class OdometryDataset(Dataset):
                 break
         
         IMU=self.imu[dset][idx:idx+200].values
-        acc=IMU[0:3][1]
+        #acc=IMU[0:3][1]
 
         IMU=IMU.swapaxes(0, 1)
 

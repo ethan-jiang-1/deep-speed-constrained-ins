@@ -402,8 +402,9 @@ def train_model(model, T, epochs_num=10):
         for i_batch, sample_batched in enumerate(training_loader):
             # Sample data.
             data = sample_batched
+            x_features = Variable(data['imu'].float())
             # Forward pass.
-            y_pred = model(Variable(data['imu'].float()))
+            y_pred = model(x_features)
 
             # Sample corresponding ground truth.
             y_gt = torch.norm(data['gt'], 2, 1).type(torch.FloatTensor)
@@ -426,8 +427,9 @@ def train_model(model, T, epochs_num=10):
         for i_batch, sample_batched in enumerate(validation_loader):
             # Sample data.
             data=sample_batched
-            # Forward pass.   
-            y_pred =model(Variable(data['imu'].float()))    
+            # Forward pass. 
+            x_features = Variable(data['imu'].float())  
+            y_pred =model(x_features) 
 
             y_gt =torch.norm(data['gt'],2,1).type(torch.FloatTensor)
             y = Variable(y_gt)
@@ -462,11 +464,20 @@ def load_dataset():
     T = OdometryDataset("../data_ds", folders, transform=ToTensor())
     return T,  data_labels
 
+
+def exam_model(model):
+    print(model)
+
+
 def get_model_from_new_training(T, epochs_num=10, save_model=False):
     model = None
     tls, vls = None, None
     try:    
         model=vel_regressor(Nout=1, Nlinear=7440)
+        if torch.cuda.is_available():
+            model.to('cuda')
+        exam_model(model)
+
         #model = model.to(dev)
         if train_model:
             tls, vls = train_model(model, T, epochs_num=epochs_num)
@@ -483,10 +494,9 @@ def get_model_from_new_training(T, epochs_num=10, save_model=False):
 
 def get_model_from_trained_model():
     model= torch.load('./full_new.pt', map_location=lambda storage, loc: storage)
+    exam_model(model)
     return model
 
-def exam_model(model):
-    pass
 
 def plot_model_and_pred(model, T, data_labels):
     ordered_Loader = DataLoader(T, batch_size=1, shuffle=False, num_workers=1)
