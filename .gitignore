@@ -1,5 +1,7 @@
 venv
-data/advio-*
+# data/advio-*
+*.mov
+**/tango/**
 
 __pycache__
-python//__pycache__
+python/__pycache__
