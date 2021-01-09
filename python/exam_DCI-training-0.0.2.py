@@ -152,6 +152,9 @@ def plot_data_labels(folders, labs):
     return data_labels
 
 
+def exam_dataset(T):
+    print(T)
+    pass
 
 #plot velocity and speed.
 def plot_vel_sp(T):
@@ -377,8 +380,8 @@ def train_model(model, T):
     
     index=np.arange(len(T))
     np.random.shuffle(index)
-    train=index[1:int(np.floor(len(T)/10*9))]
-    test=index[int(np.floor(len(T)/10*9)):-1]
+    train = index[1:int(np.floor(len(T)/10*9))]
+    test = index[int(np.floor(len(T)/10*9)):-1]
     
     #Split training and validation.
     training_loader = DataLoader(T, batch_size=10, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train)))
@@ -461,6 +464,7 @@ if __name__ == "__main__":
     
     # Create dataset reader.
     T = OdometryDataset("../data", folders, transform=ToTensor())
+    exam_dataset(T)
     plot_vel_sp(T)
 
     model = None

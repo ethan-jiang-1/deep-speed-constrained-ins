@@ -44,9 +44,9 @@ class OdometryDataset(Dataset):
             pos=data[data['l']==7]
             imu=data[data['l']==34]      
             self.imut.append(imu[list('t')])
-            self.imu.append(imu[list('abcdef')])
+            self.imu.append(imu[list('abcdef')])  # w_x, w_y, w_z, a_x, a_y, a_z
             self.post.append(pos[list('t')])
-            self.pos.append(pos[list('bcd')])    
+            self.pos.append(pos[list('bcd')])  # pos_x, pos_y, pos_z  
             self.transform = transform
             self.limits.append(self.limits[ind]+len(self.imu[ind])-300)
       
@@ -74,7 +74,8 @@ class OdometryDataset(Dataset):
             raise ValueError('Index out of range')
         else:
             idx=idx*100
-                
+
+        dset = None       
         for index in range(0,len(self.limits)):
             if idx>=self.limits[index] and idx<self.limits[index+1]:
 
@@ -110,7 +111,8 @@ class OdometryDataset(Dataset):
         gt=np.mean((dp/dt),axis=0)
         gt=dP/dT
         
-
+        # construct the imu -> gt mapping
+        # imu(feature: acce and gyro) (6, 200) -> dt(speed: dp/dt) (3)
         gt=gt.astype('float')
         IMU=IMU.astype('float')
         sample={'imu':IMU,'gt':gt,'time':T[0],'range':[minv,maxv]}
