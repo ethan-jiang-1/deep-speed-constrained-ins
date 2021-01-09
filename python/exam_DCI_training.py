@@ -465,6 +465,8 @@ def get_model_from_new_training(T, epochs_num=10, save_model=False):
     tls, vls = None, None
     try:    
         model=vel_regressor(Nout=1, Nlinear=7440)
+        if torch.cuda.is_available():
+            model = model.to('cuda')
         if train_model:
             tls, vls = train_model(model, T, epochs_num=epochs_num)
         else:
