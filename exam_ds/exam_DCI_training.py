@@ -22,6 +22,7 @@ import subprocess
 import time
 import csv
 import traceback
+from torchsummary import summary
 
 # dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -48,7 +49,7 @@ except:
 
 # Model
 class vel_regressor(torch.nn.Module):
-    def __init__(self, Nin=6, Nout=3, Nlinear=112*60):
+    def __init__(self, Nin=6, Nout=1, Nlinear=112*30):
         super(vel_regressor, self).__init__()
         # Convolutional layers
         self.model1 = torch.nn.Sequential(
@@ -56,7 +57,7 @@ class vel_regressor(torch.nn.Module):
         torch.nn.ReLU(),
         torch.nn.Conv1d(60,120,kernel_size=3,stride=1,groups=Nin),
         torch.nn.ReLU(),
-        torch.nn.Conv1d(120,240,kernel_size=3,stride=1),
+        torch.nn.Conv1d(120,60,kernel_size=3,stride=1),
         torch.nn.ReLU(),
         torch.nn.MaxPool1d(10, stride=6),
         )
@@ -405,6 +406,7 @@ def train_model(model, T, epochs_num=10):
             x_features = Variable(data['imu'].float())
             # Forward pass.
             y_pred = model(x_features)
+            # shape of x_features [10, 6, 200]
             y_pred_val = y_pred.view(-1)
 
             # Sample corresponding ground truth.
@@ -437,7 +439,7 @@ def train_model(model, T, epochs_num=10):
             y_gt = data['gt'].float()
             y_gt_val =  y_gt.view(-1)
 
-            loss = loss_fn(y_pred, y_gt_val)
+            loss = loss_fn(y_pred_val, y_gt_val)
             
             #val_loss +=np.sum(loss.data[0])
             val_loss += loss.data
@@ -468,18 +470,19 @@ def load_dataset():
     T = OdometryDataset("../data_ds", folders, transform=ToTensor())
     return T,  data_labels
 
-
 def exam_model(model):
-    print(model)
-
+    if not hasattr(model, "model_examed"):
+        print(model)
+        #summary(model, (6, 200))
+        model.model_examed = True
 
 def get_model_from_new_training(T, epochs_num=10, save_model=False):
     model = None
     tls, vls = None, None
     try:    
-        model=vel_regressor(Nout=3, Nlinear=7440)
-        if torch.cuda.is_available():
-            model.to('cuda')
+        model=vel_regressor(Nout=3, Nlinear= 1860) # Nlinear=7440)
+        #if torch.cuda.is_available():
+        #    model.to('cuda')
         exam_model(model)
 
         #model = model.to(dev)
@@ -526,7 +529,7 @@ def run_main(load_model=False):
         if load_model:
             model = get_model_from_trained_model()
         else:
-            model, tls, vls = get_model_from_new_training(T, epochs_num=1)
+            model, tls, vls = get_model_from_new_training(T, epochs_num=20)
             plot_traning(tls, vls)
     
     except Exception as ex:
@@ -534,7 +537,12 @@ def run_main(load_model=False):
         print(traceback.format_exc())
 
     exam_model(model)
-    plot_model_and_pred(model, T, data_labels)
+
+    try:
+        plot_model_and_pred(model, T, data_labels)
+    except Exception as ex:
+        print("Exception occured: ", ex)
+        print(traceback.format_exc())    
 
     plt.show()
 

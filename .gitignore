@@ -1,4 +1,7 @@
 venv
+
+*.orig
+
 # data_ds
 *.mov
 data_ds/**/tango/**
