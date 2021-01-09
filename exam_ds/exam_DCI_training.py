@@ -468,8 +468,9 @@ def load_dataset():
 
 def exam_model(model):
     if not hasattr(model, "model_examed"):
-        print(model)
-        summary(model, (6, 200))
+        if not torch.cuda.is_available():
+            print(model)
+            summary(model, (6, 200))
         model.model_examed = True
 
 def get_model_from_new_training(T, epochs_num=10, save_model=False):
