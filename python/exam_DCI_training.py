@@ -23,7 +23,7 @@ import time
 import csv
 import traceback
 
-dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+# dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 import sys
 sys.path.append(os.path.dirname(__file__))
@@ -467,7 +467,7 @@ def get_model_from_new_training(T, epochs_num=10, save_model=False):
     tls, vls = None, None
     try:    
         model=vel_regressor(Nout=1, Nlinear=7440)
-        model = model.to(dev)
+        #model = model.to(dev)
         if train_model:
             tls, vls = train_model(model, T, epochs_num=epochs_num)
         else:
