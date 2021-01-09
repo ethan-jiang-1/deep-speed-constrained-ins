@@ -374,16 +374,18 @@ def train_model(model, T):
     #Configure data loaders and optimizer
     learning_rate = 1e-6
     loss_fn = torch.nn.MSELoss(size_average=False)
+    
     index=np.arange(len(T))
     np.random.shuffle(index)
     train=index[1:int(np.floor(len(T)/10*9))]
     test=index[int(np.floor(len(T)/10*9)):-1]
+    
     #Split training and validation.
-    training_loader = DataLoader(T, batch_size=10,shuffle=False, num_workers=4,sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train)))
-    validation_loader = DataLoader(T, batch_size=10,shuffle=False, num_workers=4,sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test)))
+    training_loader = DataLoader(T, batch_size=10, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train)))
+    validation_loader = DataLoader(T, batch_size=10, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test)))
     #Create secondary loaders
-    single_train_Loader = DataLoader(T, batch_size=1,shuffle=False, num_workers=1,sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train)))
-    single_validation_Loader = DataLoader(T, batch_size=1,shuffle=False, num_workers=1,sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test)))
+    #single_train_Loader = DataLoader(T, batch_size=1,shuffle=False, num_workers=1, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train)))
+    #single_validation_Loader = DataLoader(T, batch_size=1,shuffle=False, num_workers=1, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test)))
 
     #define optimizer.
     optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
@@ -392,7 +394,7 @@ def train_model(model, T):
     val=[]
 
     # Epochs
-    epochs_num = 3
+    epochs_num = 10
     for t in range(epochs_num):
         print("epochs {}".format(t))
         ti = time.time()
@@ -401,13 +403,17 @@ def train_model(model, T):
         # Train
         for i_batch, sample_batched in enumerate(training_loader):
             # Sample data.
-            data=sample_batched
+            data = sample_batched
             # Forward pass.
-            y_pred =model(Variable(data['imu'].float()))     
+            y_pred = model(Variable(data['imu'].float()))
+
             # Sample corresponding ground truth.
-            y=torch.norm(data['gt'],2,1).type(torch.FloatTensor)
+            y_gt = torch.norm(data['gt'], 2, 1).type(torch.FloatTensor)
+            y_gt_val =  Variable(y_gt)
+            y_pred_val = y_pred.view(-1)
             # Compute and print loss.
-            loss = loss_fn(y_pred,Variable(y))
+            loss = loss_fn(y_pred_val, y_gt_val)
+
             # Save loss.
             # acc_loss +=np.sum(loss.data[0])
             acc_loss += loss.data
@@ -424,9 +430,10 @@ def train_model(model, T):
             data=sample_batched
             # Forward pass.   
             y_pred =model(Variable(data['imu'].float()))    
-            vec=data['gt']
-            y=torch.norm(data['gt'],2,1).type(torch.FloatTensor)
-            loss = loss_fn(y_pred,Variable(y))
+
+            y_gt =torch.norm(data['gt'],2,1).type(torch.FloatTensor)
+            y = Variable(y_gt)
+            loss = loss_fn(y_pred.view(-1), y)
             
             #val_loss +=np.sum(loss.data[0])
             val_loss += loss.data
@@ -437,7 +444,7 @@ def train_model(model, T):
         print("loss_train\t", l[-1])
         print("loss_val\t", val[-1])
         elapsed = time.time() - ti
-        print("elapsed\t", elapsed)
+        print("elapsed (sec)\t", elapsed)
         
     # Plot loss
     plt.figure()
