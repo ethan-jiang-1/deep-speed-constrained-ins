@@ -19,6 +19,8 @@ from torchvision import transforms, utils
 from torch.autograd import Variable
 import csv
 
+dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
 # Dataset class
 class OdometryDataset(Dataset):
     def __init__(self, data_folder,datasets, transform=None):
