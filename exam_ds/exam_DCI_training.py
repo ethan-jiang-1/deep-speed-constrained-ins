@@ -395,7 +395,7 @@ def train_model(model, T, epochs_num=10):
 
     # Epochs
     for t in range(epochs_num):
-        print("epochs {}".format(t))
+        print("epochs {}...".format(t))
         ti = time.time()
         acc_loss=0
         val_loss=0
@@ -442,11 +442,11 @@ def train_model(model, T, epochs_num=10):
         # Save loss and print status.
         tls.append(acc_loss/(len(T)*9/10))
         vls.append(val_loss/(len(T)/10))
-        print("epoch\t", t)
-        print("loss_train\t", tls[-1])
-        print("loss_val\t", vls[-1])
-        elapsed = time.time() - ti
-        print("elapsed (sec)\t", elapsed)
+        # print("epoch\t", t)
+        elapsed = time.time() - ti        
+        #print("loss_train\t", tls[-1])
+        #print("loss_val\t", vls[-1])
+        print("epochs {} elapsed: {:.2f}(sec)\t\tloss_train: {:.4f}\tloss_val: {:.4f}".format(t, elapsed, tls[-1], vls[-1]))
         
     return tls, vls
 
