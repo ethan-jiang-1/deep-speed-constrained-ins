@@ -66,7 +66,7 @@ class OdometryDataset(Dataset):
     # Define the length of the dataset as the number of sequences that can be extracted.  
     def __len__(self):
 
-        return np.floor((self.limits[-1]-1)/100)
+        return int(np.floor((self.limits[-1]-1)/100))
     
     # read a sample of 100 measurements, avoiding the edges of the diferent captures.
     def __getitem__(self, idx):
