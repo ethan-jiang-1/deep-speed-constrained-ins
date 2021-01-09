@@ -48,7 +48,7 @@ except:
 
 # Model
 class vel_regressor(torch.nn.Module):
-    def __init__(self, Nin=6, Nout=1, Nlinear=112*60):
+    def __init__(self, Nin=6, Nout=3, Nlinear=112*60):
         super(vel_regressor, self).__init__()
         # Convolutional layers
         self.model1 = torch.nn.Sequential(
@@ -61,7 +61,7 @@ class vel_regressor(torch.nn.Module):
         torch.nn.MaxPool1d(10, stride=6),
         )
         # Fully connected layers
-        self.model2=model2=torch.nn.Sequential(
+        self.model2 = torch.nn.Sequential(
         torch.nn.Linear(Nlinear, 10*40),
         torch.nn.ReLU(),
         torch.nn.Linear(10*40, 100),
@@ -405,11 +405,12 @@ def train_model(model, T, epochs_num=10):
             x_features = Variable(data['imu'].float())
             # Forward pass.
             y_pred = model(x_features)
+            y_pred_val = y_pred.view(-1)
 
             # Sample corresponding ground truth.
-            y_gt = torch.norm(data['gt'], 2, 1).type(torch.FloatTensor)
-            y_gt_val =  Variable(y_gt)
-            y_pred_val = y_pred.view(-1)
+            y_gt = data['gt'].float()
+            y_gt_val =  y_gt.view(-1)
+
             # Compute and print loss.
             loss = loss_fn(y_pred_val, y_gt_val)
 
@@ -430,10 +431,13 @@ def train_model(model, T, epochs_num=10):
             # Forward pass. 
             x_features = Variable(data['imu'].float())  
             y_pred =model(x_features) 
+            y_pred_val = y_pred.view(-1)
 
-            y_gt =torch.norm(data['gt'],2,1).type(torch.FloatTensor)
-            y = Variable(y_gt)
-            loss = loss_fn(y_pred.view(-1), y)
+            # Sample corresponding ground truth.
+            y_gt = data['gt'].float()
+            y_gt_val =  y_gt.view(-1)
+
+            loss = loss_fn(y_pred, y_gt_val)
             
             #val_loss +=np.sum(loss.data[0])
             val_loss += loss.data
@@ -473,7 +477,7 @@ def get_model_from_new_training(T, epochs_num=10, save_model=False):
     model = None
     tls, vls = None, None
     try:    
-        model=vel_regressor(Nout=1, Nlinear=7440)
+        model=vel_regressor(Nout=3, Nlinear=7440)
         if torch.cuda.is_available():
             model.to('cuda')
         exam_model(model)
