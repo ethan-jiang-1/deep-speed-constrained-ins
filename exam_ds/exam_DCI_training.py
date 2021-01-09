@@ -53,11 +53,11 @@ class vel_regressor(torch.nn.Module):
         super(vel_regressor, self).__init__()
         # Convolutional layers
         self.model1 = torch.nn.Sequential(
-        torch.nn.Conv1d(Nin,60,kernel_size=3,stride=1,groups=Nin),
+        torch.nn.Conv1d(Nin,180, kernel_size=1, stride=1, groups=Nin),
         torch.nn.ReLU(),
-        torch.nn.Conv1d(60,120,kernel_size=3,stride=1,groups=Nin),
+        torch.nn.Conv1d(180, 90, kernel_size=2, stride=1, groups=Nin),
         torch.nn.ReLU(),
-        torch.nn.Conv1d(120,60,kernel_size=3,stride=1),
+        torch.nn.Conv1d(90,  60, kernel_size=3, stride=1),
         torch.nn.ReLU(),
         torch.nn.MaxPool1d(10, stride=6),
         )
@@ -468,18 +468,17 @@ def load_dataset():
 
 def exam_model(model):
     if not hasattr(model, "model_examed"):
-        if not torch.cuda.is_available():
-            print(model)
-            #summary(model, (6, 200))
-            model.model_examed = True
+        print(model)
+        summary(model, (6, 200))
+        model.model_examed = True
 
 def get_model_from_new_training(T, epochs_num=10, save_model=False):
     model = None
     tls, vls = None, None
     try:    
-        model=vel_regressor(Nout=1, Nlinear= 1860) # Nlinear=7440)
-        #if torch.cuda.is_available():
-        #    model.to('cuda')
+        model=vel_regressor(Nout=1, Nlinear=1920) # 1860) # Nlinear=7440)
+        if torch.cuda.is_available():
+            model.to('cuda')
         exam_model(model)
 
         #model = model.to(dev)
