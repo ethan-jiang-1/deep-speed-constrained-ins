@@ -58,28 +58,43 @@ def get_activation(name):
 #    return val
 
 
-loss_fn = torch.nn.MSELoss(reduction='sum')
+loss_fn_triplet = torch.nn.TripletMarginWithDistanceLoss(distance_function=torch.nn.PairwiseDistance())
+loss_fn_MSELoss = torch.nn.MSELoss(reduction='sum')
 def compute_loss(model, data):
     global model_activation
+    if "model3" in model_activation:
+        del model_activation["model3"]
+    
     #loss_fn = torch.nn.MSELoss(reduction='sum')
 
     x_features = Variable(data['imu'].float())
     # shape of x_features [10, 6, 200]
     y_pred = model(x_features)
-    # shape of y_pred [10, 1]
-    y_pred_val = y_pred.view(-1)
-    # [10]
 
-    # Sample corresponding ground truth.
-    # shape of y_gt [10, 3]  
-    y_gt = torch.norm(data['gt'], 2, 1).type(torch.FloatTensor)
-    # [10, 1]
-    y_gt_val =  Variable(y_gt)
-    # [10]
+    if "model3" in model_activation:
+        anchor = model_activation["model3"]
+        positive = data['gt']
+        negative = data['gt'].clone().detach()
+        for i in range(len(negative)):
+            for j in range(3):
+                negative[i][j] = -negative[i][j]
 
-    # Compute and print loss.
-    loss = loss_fn(y_pred_val, y_gt_val)
-    return loss
+        loss = loss_fn_triplet(anchor, positive, negative)
+        return loss
+    else:
+        # shape of y_pred [10, 1]
+        y_pred_val = y_pred.view(-1)
+        # [10]
+
+        # shape of y_gt [10, 3]  
+        y_gt = torch.norm(data['gt'], 2, 1).type(torch.FloatTensor)
+        # [10, 1]
+        y_gt_val =  Variable(y_gt)
+        # [10]
+
+        # Compute and print loss.
+        loss = loss_fn_MSELoss(y_pred_val, y_gt_val)
+        return loss
 
 def train_model(model, T, epochs_num=10):
     model.model3.register_forward_hook(get_activation('model3'))
@@ -95,9 +110,6 @@ def train_model(model, T, epochs_num=10):
     #Split training and validation.
     training_loader = DataLoader(T, batch_size=10, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train)))
     validation_loader = DataLoader(T, batch_size=10, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test)))
-    #Create secondary loaders
-    #single_train_Loader = DataLoader(T, batch_size=1,shuffle=False, num_workers=1, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train)))
-    #single_validation_Loader = DataLoader(T, batch_size=1,shuffle=False, num_workers=1, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test)))
 
     #define optimizer.
     optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
