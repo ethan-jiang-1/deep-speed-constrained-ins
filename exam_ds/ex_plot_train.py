@@ -179,5 +179,7 @@ def plot_bunch_confused(model, T, data_labels):
 class PlotTrainDs(object):
     @classmethod
     def plot_all(cls, model, T, data_labels):
+        print("prepare and plot pred_speed_ordered...")
         plot_pred_speed_ordered(model, T)
+        print("prepare and plot plot_bunch_confused...")
         plot_bunch_confused(model, T, data_labels)

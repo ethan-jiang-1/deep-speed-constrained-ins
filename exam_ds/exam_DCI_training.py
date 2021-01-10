@@ -18,6 +18,8 @@ import matplotlib.pyplot as plt
 # dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 import sys
+
+from torch._C import Value
 sys.path.append(os.path.dirname(__file__))
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
@@ -49,19 +51,32 @@ def plot_traning(tls, vls):
     plt.plot(np.log(np.array(vls)),label = 'Validation loss')
 
 
-def select_model():
+def select_model(model_name):
     #Import python functions.
-    try:
-        from exam_ds.ex_model_ds_conv1d import ExamModelDs as Emdl
-    except:
-        from ex_model_ds_conv1d import ExamModelDs as Emdl
-    return Emdl
+    if model_name in ["conv1d", "lstm"]:
+        print("model selected {}".format(model_name))
+
+        if model_name == "conv1d":
+            try:
+                from exam_ds.ex_model_ds_conv1d import ExamModelDs as Emdl
+            except:
+                from ex_model_ds_conv1d import ExamModelDs as Emdl
+            print(Emdl)
+            return Emdl        
+        else:
+            try:
+                from exam_ds.ex_model_ds_lstm import ExamModelDs as Emdl
+            except:
+                from ex_model_ds_lstm import ExamModelDs as Emdl
+            print(Emdl)
+            return Emdl
+    raise ValueError("no_model_for{}".format(model_name))
     
 
-def run_main(load_model=False):
+def run_main(model_name="lstm", load_model=False):
     T, data_labels = Dsl.load_dataset()
 
-    Emdl = select_model()
+    Emdl = select_model(model_name)
 
     model = None
     try:    
@@ -78,17 +93,23 @@ def run_main(load_model=False):
 
     Emdl.exam_model(model)
 
-    # plot on trained testset (tain/val)
-    Ptn.plot_all(model, T, data_labels)
+    if model is not None and hasattr(model, "eval_pred"):
+        # plot on trained testset (tain/val)
+        Ptn.plot_all(model, T, data_labels)
 
-    # test on test (not tranined)
-    Ptt.plot_all(model, test_folders=["/static/dataset-04/"])
+        # test on test (not tranined)
+        Ptt.plot_all(model, test_folders=["/static/dataset-04/"])
 
-    plt.show()
+        plt.show()
+    else:
+        raise ValueError("invalid_model")
 
 
 if __name__ == "__main__":
-    run_main(load_model=False)
+    #model_name="lstm"
+    model_name="conv1d"
+
+    run_main(model_name=model_name, load_model=False)
 
 
 

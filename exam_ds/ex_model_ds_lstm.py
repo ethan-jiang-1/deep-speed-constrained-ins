@@ -7,43 +7,49 @@ import traceback
 from torchsummary import summary
 
 # Model
+class vel_regressor_lstm(torch.nn.Module):
+    def __init__(self, Nin=200, Nout=1, batch_size=10, device=None,
+                 lstm_size=200, lstm_layers=6, dropout=0):
+        """
+        Simple LSTM network
+        Input: torch array [batch x frames x input_size]
+        Output: torch array [batch x frames x out_size]
 
-class vel_regressor_conv1d(torch.nn.Module):
-    def __init__(self, Nin=6, Nout=1, Nlinear=1920):
-        super(vel_regressor_conv1d, self).__init__()
+        :param input_size: num. channels in input
+        :param out_size: num. channels in output
+        :param batch_size:
+        :param device: torch device
+        :param lstm_size: number of LSTM units per layer
+        :param lstm_layers: number of LSTM layers
+        :param dropout: dropout probability of LSTM (@ref https://pytorch.org/docs/stable/nn.html#lstm)
+        """
+        super(vel_regressor_lstm, self).__init__()
+        self.input_size = Nin
+        self.lstm_size = lstm_size
+        self.output_size = Nout
+        self.num_layers = lstm_layers
+        self.batch_size = batch_size
+        self.device = device
 
-        # Convolutional layers
-        self.model1 = torch.nn.Sequential(
-        torch.nn.Conv1d(Nin, 180, kernel_size=1, stride=1, groups=Nin),
-        torch.nn.ReLU(),
-        torch.nn.Conv1d(180, 90, kernel_size=2, stride=1, groups=Nin),
-        torch.nn.ReLU(),
-        torch.nn.Conv1d(90,  60, kernel_size=3, stride=1),
-        torch.nn.ReLU(),
-        torch.nn.MaxPool1d(10, stride=6),
-        )
-        
-        # Fully connected layers
-        self.model2 = torch.nn.Sequential(
-        torch.nn.Linear(Nlinear, 10*40),
-        torch.nn.ReLU(),
-        torch.nn.Linear(10*40, 100),
-        torch.nn.ReLU())
-        
-        # Last FC
-        self.model3 = torch.nn.Sequential(
-        torch.nn.Linear(100, 3)
-        )
-        
-    # Forward pass
-    def forward(self, x):
-        # x tensor shape (10, 6, 200) in batch_mode(10)
-        x = self.model1(x)
-        x = x.view(x.size(0), -1)
-        x = self.model2(x)
-        x = self.model3(x)
-        y = torch.norm(x, dim=1)
-        return y
+        self.lstm = torch.nn.LSTM(self.input_size, self.lstm_size, self.num_layers, batch_first=True, dropout=dropout)
+        self.linear1 = torch.nn.Linear(self.lstm_size, self.output_size * 60)
+        self.linear2 = torch.nn.Linear(self.output_size * 60, self.output_size)
+        #self.hidden = self.init_weights()
+
+    def forward(self, input, hidden=None):
+        # input tensor shape (10, 6, 200) in batch_mode(10)
+        output, _ = self.lstm(input) #, self.init_weights())
+        output = self.linear1(output)
+        output = self.linear2(output)
+        return output
+
+    def init_weights(self):
+        h0 = torch.zeros(self.num_layers, self.batch_size, self.lstm_size)
+        c0 = torch.zeros(self.num_layers, self.batch_size, self.lstm_size)
+        if self.device is not None:
+            h0 = h0.to(self.device)
+            c0 = c0.to(self.device)
+        return Variable(h0), Variable(c0)
 
 
 def inspect_model(model, batch_size=10):
@@ -95,7 +101,7 @@ def compute_loss(model, data):
     loss = loss_fn(y_pred_val, y_gt_val)
     return loss
 
-def train_model(model, T, epochs_num=10, batch_size=10):
+def train_model(model, T, epochs_num=20, batch_size=10):
     #model.model3.register_forward_hook(get_activation('model3'))
 
     #Configure data loaders and optimizer
@@ -158,14 +164,14 @@ def train_model(model, T, epochs_num=10, batch_size=10):
 class ExamModelDs(object):
     @classmethod
     def exam_model(cls, model):
-        return inspect_model(model)
+        inspect_model(model)
 
     @classmethod
     def get_model_from_new_training(cls, T, epochs_num=20, save_model=False, batch_size=10):
         model = None
         tls, vls = None, None
         try:    
-            model=vel_regressor_conv1d()
+            model = vel_regressor_lstm()
             #if torch.cuda.is_available():
             #    model.to('cuda')
             cls.exam_model(model)
