@@ -82,7 +82,7 @@ def compute_loss(model, data):
     return loss
 
 def train_model(model, T, epochs_num=10):
-    model.model3.register_forward_hook(get_activation('model3'))
+    #model.model3.register_forward_hook(get_activation('model3'))
 
     #Configure data loaders and optimizer
     learning_rate = 1e-6
