@@ -39,48 +39,16 @@ try:
 except:
     pass
 
+
 #Import python functions.
 try:
     from exam_ds.dataset import OdometryDataset
     from exam_ds.dataset import ToTensor
+    from exam_ds.exam_model import ExamModelDs as Emdl
 except:
     from dataset import OdometryDataset
     from dataset import ToTensor
-
-
-# Model
-class vel_regressor(torch.nn.Module):
-    def __init__(self, Nin=6, Nout=1, Nlinear=112*30):
-        super(vel_regressor, self).__init__()
-        # Convolutional layers
-        self.model1 = torch.nn.Sequential(
-        torch.nn.Conv1d(Nin,180, kernel_size=1, stride=1, groups=Nin),
-        torch.nn.ReLU(),
-        torch.nn.Conv1d(180, 90, kernel_size=2, stride=1, groups=Nin),
-        torch.nn.ReLU(),
-        torch.nn.Conv1d(90,  60, kernel_size=3, stride=1),
-        torch.nn.ReLU(),
-        torch.nn.MaxPool1d(10, stride=6),
-        )
-        # Fully connected layers
-        self.model2 = torch.nn.Sequential(
-        torch.nn.Linear(Nlinear, 10*40),
-        torch.nn.ReLU(),
-        torch.nn.Linear(10*40, 100),
-        torch.nn.ReLU(),
-        torch.nn.Linear(100, 3))
-        
-    # Forward pass
-    def forward(self, x):
-        x = self.model1(x)
-        x = x.view(x.size(0), -1)
-        x = self.model2(x)
-        y = torch.norm(x, dim=1)
-        return y
-        # y = np.zeros((x.shape[0],1))
-        # for i in range(x.shape[0]):
-        #     y[i, 0] = math.sqrt(x[i, 0]*x[i, 0] + x[i, 1]*x[i, 1] + x[i, 2]*x[i, 2])
-        # return torch.from_numpy(y)
+    from exam_ds.exam_model import ExamModelDs as Emdl
 
 def get_data_folders_and_labs():
     #add path to used folders
@@ -181,51 +149,71 @@ def plot_dataset(T):
     plt.ylabel('Speed (m/s)')
     plt.plot(sp)
 
+def get_val_gt(data_gt):
+    val = torch.norm(data_gt, 2, 1)
+    val = val.type(torch.FloatTensor)
+    return val.numpy()
 
-def plot_pred_speed_ordered(model, ordered_Loader):
+def get_pred_gt_vals(model, data):
+    val_pred = Emdl.eval_pred(model, data['imu'])
+    val_preds = val_pred.ravel().tolist()
+
+    val_gt = get_val_gt(data['gt'])
+    val_gts = val_gt.ravel().tolist()
+    
+    return val_preds, val_gts
+
+def plot_pred_speed_ordered(model, T):
+    ordered_Loader = DataLoader(T, batch_size=1, shuffle=False, num_workers=1)
+
     # Load corresponding prediction and ground truth
-    pred=[]
-    sp=[]
+    pred_sp=[]
+    gt_sp=[]
     for i_batch, sample_batched in enumerate(ordered_Loader):
-        data=sample_batched
-        pred.append(model(Variable(data['imu'].float())).data[0].numpy())
-        #vec=data['gt']
-        y=torch.norm(data['gt'],2,1).type(torch.FloatTensor)
-        sp.append(y.type(torch.FloatTensor).numpy())
+        data = sample_batched
+
+        val_preds, val_gts = get_pred_gt_vals(model, data)
+
+        pred_sp += val_preds
+        gt_sp += val_gts
 
     # Plot prediction and ground truth.
-    print(np.shape((np.asarray(sp))))
+    print(np.shape((np.asarray(gt_sp))))
     plt.figure()
     plt.subplot(211)
-    plt.plot(np.asarray(pred)[:,:])
+    plt.plot(pred_sp)
     plt.ylabel('Speed (m/s)')
-    plt.title('Prediction')
+    plt.title('Prediction speed')
     plt.subplot(212)
-    plt.plot(np.asarray(sp)[:,0])
-    plt.ylabel('ground truth speed')
+    plt.plot(gt_sp)
+    plt.ylabel('Ground truth speed')
 
 
-def plot_bunch_confused(model, data_labels, ordered_Loader):
+def plot_bunch_confused(model, T, data_labels):
+    ordered_Loader = DataLoader(T, batch_size=1, shuffle=False, num_workers=1)
+
     dat_lab=[]
     for label in data_labels:
         dat_lab=dat_lab+label
 
 
     #Plot scatter of prediction and ground truth with labels.
-    pred=[]
-    sp=[]
+    pred_sp=[]
+    gt_sp=[]
     R=[]
     for i_batch, sample_batched in enumerate(ordered_Loader):
         data=sample_batched
-        pred.append(model(Variable(data['imu'].float())).data[0].numpy())
-        vec=data['gt']
-        y=torch.norm(data['gt'],2,1).type(torch.FloatTensor)
-        sp.append(y.type(torch.FloatTensor).numpy())
+
+        val_preds, val_gts = get_pred_gt_vals(model, data)
+
+        pred_sp += val_preds
+        gt_sp += val_gts
+
         R.append(np.array(data['range']))
     print(len(dat_lab))
-    print(len(sp))
-    pred=np.asarray(pred)
-    sp=np.asarray(sp)    
+    print(len(gt_sp))
+    pred=np.asarray(pred_sp)
+    sp=np.asarray(gt_sp)    
     stat=[]
     stair=[]
     walk=[]
@@ -241,19 +229,19 @@ def plot_bunch_confused(model, data_labels, ordered_Loader):
     #Separte by label
     for i in range(0,len(dat_lab)):
         if dat_lab[i]==0:
-            stat.append([sp[i,0],pred[i]])
+            stat.append([sp[i],pred[i]])
             Rstat.append(R[i])
         elif dat_lab[i]==1:
-            walk.append([sp[i,0],pred[i]])
+            walk.append([sp[i],pred[i]])
             Rwalk.append(R[i])
         elif dat_lab[i]==2:
-            stair.append([sp[i,0],pred[i]])
+            stair.append([sp[i],pred[i]])
             Rstair.append(R[i])
         elif dat_lab[i]==3:
-            esc.append([sp[i,0],pred[i]])
+            esc.append([sp[i],pred[i]])
             Resc.append(R[i])
         else:
-            ele.append([sp[i,0],pred[i]])
+            ele.append([sp[i],pred[i]])
             Rele.append(R[i])
     msize=3
     plt.figure(figsize=(8,8))
@@ -332,37 +320,36 @@ def plot_bunch_confused(model, data_labels, ordered_Loader):
 
 
 
-def plot_pred_speed_test(model):
+def plot_model_on_test_dataset(model):
     plt.figure()
     # Evaluate in unknown data to the network.
     nfolders=[]
     nfolders.append("/static/dataset-04/")
-    Test=OdometryDataset("./../data_ds/",nfolders,transform=ToTensor())
+    Test = OdometryDataset("./../data_ds/",nfolders,transform=ToTensor())
     test_Loader = DataLoader(Test, batch_size=1,shuffle=False, num_workers=1)
 
-    pred=[]
-    sp=[]
+    pred_sp=[]
+    gt_sp=[]
     t=[]
     for i_batch, sample_batched in enumerate(test_Loader):
         data=sample_batched
-        pred.append(model(Variable(data['imu'].float())).data[0].cpu().numpy())
-        vec=data['gt']
-        #vertical=torch.norm(vec[:,[1]],2,1) 
-        #vertical=vec[:,1]
-        #horizontal=torch.norm(vec[:,[0,2]],2,1)  
-        #y=torch.stack((vertical,horizontal),1)
-        y=torch.norm(data['gt'],2,1).type(torch.FloatTensor)
-        sp.append(y.type(torch.FloatTensor).numpy())
+
+        val_preds, val_gts = get_pred_gt_vals(model, data)
+
+        pred_sp += val_preds
+        gt_sp += val_gts
+
+
         t.append(data['time'])
     plt.subplot(211)
-    plt.plot(np.asarray(pred))
+    plt.plot(pred_sp)
     plt.ylabel('Predicted speed')
     plt.subplot(212)
-    plt.plot(np.asarray(sp)[:,0])
+    plt.plot(gt_sp)
     plt.ylabel('ground truth speed')
 
     fig = plt.figure(figsize=(6,6))
-    plt.plot(np.asarray(sp)[:,0],np.asarray(pred)[:],'.', label='test data')
+    plt.plot(np.asarray(gt_sp),np.asarray(pred_sp),'.', label='test data')
     plt.plot([0,2],[0,2],'k')
     plt.xlabel('gt (m/s)')
     plt.ylabel('prediction (m/s)')
@@ -373,87 +360,6 @@ def plot_pred_speed_test(model):
     axes.set_ylim([0.0,2])
     axes.legend()
 
-loss_fn = torch.nn.MSELoss(reduction='sum')
-def compute_loss(model, data):
-    #loss_fn = torch.nn.MSELoss(reduction='sum')
-
-    x_features = Variable(data['imu'].float())
-    # shape of x_features [10, 6, 200]
-    y_pred = model(x_features)
-    # shape of y_pred [10, 1]
-    y_pred_val = y_pred.view(-1)
-    # [10]
-
-    # Sample corresponding ground truth.
-    # shape of y_gt [10, 3]  
-    y_gt = torch.norm(data['gt'], 2, 1).type(torch.FloatTensor)
-    # [10, 1]
-    y_gt_val =  Variable(y_gt)
-    # [10]
-
-    # Compute and print loss.
-    loss = loss_fn(y_pred_val, y_gt_val)
-    return loss
-
-
-def train_model(model, T, epochs_num=10):
-
-    #Configure data loaders and optimizer
-    learning_rate = 1e-6
-
-    index=np.arange(len(T))
-    np.random.shuffle(index)
-    train = index[1:int(np.floor(len(T)/10*9))]
-    test = index[int(np.floor(len(T)/10*9)):-1]
-    
-    #Split training and validation.
-    training_loader = DataLoader(T, batch_size=10, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train)))
-    validation_loader = DataLoader(T, batch_size=10, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test)))
-    #Create secondary loaders
-    #single_train_Loader = DataLoader(T, batch_size=1,shuffle=False, num_workers=1, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train)))
-    #single_validation_Loader = DataLoader(T, batch_size=1,shuffle=False, num_workers=1, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test)))
-
-    #define optimizer.
-    optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
-
-    tls=[]
-    vls=[]
-
-    # Epochs
-    for t in range(epochs_num):
-        print("epochs {}...".format(t))
-        ti = time.time()
-        acc_loss=0
-        val_loss=0
-        # Train
-        for i_batch, sample_batched in enumerate(training_loader):
-            # Sample data.
-            data = sample_batched
-            loss = compute_loss(model, data)
-            acc_loss += loss.data
-
-            # Zero the gradients before running the backward pass.
-            model.zero_grad()
-            # Backward pass.
-            loss.backward()
-            # Take optimizer step.
-            optimizer.step()
-
-        # Validation
-        for i_batch, sample_batched in enumerate(validation_loader):
-            # Sample data.
-            data=sample_batched
-            loss = compute_loss(model, data)
-            val_loss += loss.data
-
-        # Save loss and print status.
-        tls.append(acc_loss/(len(T)*9/10))
-        vls.append(val_loss/(len(T)/10))
-        elapsed = time.time() - ti        
-
-        print("epochs {} elapsed: {:.2f}(sec)\t\tloss_train: {:.4f}\tloss_val: {:.4f}".format(t, elapsed, tls[-1], vls[-1]))
-        
-    return tls, vls
 
 def plot_traning(tls, vls):
     # Plot loss
@@ -471,54 +377,17 @@ def load_dataset():
     T = OdometryDataset("../data_ds", folders, transform=ToTensor())
     return T,  data_labels
 
-def exam_model(model):
-    if not hasattr(model, "model_examed"):
-        if not torch.cuda.is_available():
-            print(model)
-            summary(model, (6, 200))
-        model.model_examed = True
-
-def get_model_from_new_training(T, epochs_num=10, save_model=False):
-    model = None
-    tls, vls = None, None
-    try:    
-        model=vel_regressor(Nout=1, Nlinear=1920) # 1860) # Nlinear=7440)
-        #if torch.cuda.is_available():
-        #    model.to('cuda')
-        exam_model(model)
-
-        #model = model.to(dev)
-        if train_model:
-            tls, vls = train_model(model, T, epochs_num=epochs_num)
-        else:
-            raise ValueError("What?")
-    except Exception as ex:
-        print("Exception occured: ", ex)
-        print(traceback.format_exc())
-
-    #save model
-    if save_model:
-        torch.save(model,'./full_new.pt')
-    return model, tls, vls
-
-def get_model_from_trained_model():
-    model= torch.load('./full_new.pt', map_location=lambda storage, loc: storage)
-    exam_model(model)
-    return model
 
 
-def plot_model_and_pred(model, T, data_labels):
-    ordered_Loader = DataLoader(T, batch_size=1, shuffle=False, num_workers=1)
-
+def plot_model_and_pred_on_train_dataset(model, T, data_labels):
     # Load corresponding prediction and ground truth
-    plot_pred_speed_ordered(model, ordered_Loader)
+    plot_pred_speed_ordered(model, T)
 
-    plot_bunch_confused(model, data_labels, ordered_Loader)
-
-    plot_pred_speed_test(model)
+    plot_bunch_confused(model, T, data_labels)
 
 
 def run_main(load_model=False):
+
 
     T, data_labels = load_dataset()
 
@@ -529,17 +398,20 @@ def run_main(load_model=False):
     try:    
         #load pretrained model or create new one.
         if load_model:
-            model = get_model_from_trained_model()
+            model = Emdl.get_model_from_trained_model()
         else:
-            model, tls, vls = get_model_from_new_training(T, epochs_num=10)
+            model, tls, vls = Emdl.get_model_from_new_training(T, epochs_num=1)
             plot_traning(tls, vls)
     
     except Exception as ex:
         print("Exception occured: ", ex)
         print(traceback.format_exc())
 
-    exam_model(model)
-    plot_model_and_pred(model, T, data_labels)
+    Emdl.exam_model(model)
+
+    plot_model_and_pred_on_train_dataset(model, T, data_labels)
+    plot_model_on_test_dataset(model)
+
 
     plt.show()
 
