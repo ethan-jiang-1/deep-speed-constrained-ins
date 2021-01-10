@@ -6,6 +6,8 @@ import time
 import traceback
 from torchsummary import summary
 
+dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
 # Model
 
 class vel_regressor_conv1d(torch.nn.Module):
@@ -163,8 +165,7 @@ class ExamModelDs(object):
         tls, vls = None, None
         try:    
             model=vel_regressor_conv1d()
-            #if torch.cuda.is_available():
-            #    model.to('cuda')
+            model = model.to(dev)
             cls.exam_model(model)
 
             #model = model.to(dev)

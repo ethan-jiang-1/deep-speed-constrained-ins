@@ -15,8 +15,6 @@ import numpy as np
 import traceback
 import matplotlib.pyplot as plt
 
-# dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
 import sys
 
 from torch._C import Value
@@ -110,7 +108,3 @@ if __name__ == "__main__":
     model_name="conv1d"
 
     run_main(model_name=model_name, load_model=False)
-
-
-
-

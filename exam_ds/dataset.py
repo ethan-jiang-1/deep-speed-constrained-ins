@@ -17,9 +17,8 @@ import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 from torch.autograd import Variable
-import csv
 
-#dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 # Dataset class
 class OdometryDataset(Dataset):
@@ -118,12 +117,14 @@ class OdometryDataset(Dataset):
         # imu(feature: acce and gyro) (6, 200) -> dt(speed: dp/dt) (3)
         gt=gt.astype('float')
         IMU=IMU.astype('float')
+
         sample={'imu':IMU,'gt':gt,'time':T[0],'range':[minv,maxv]}
         if self.transform:
             sample = self.transform(sample)
-        
+
         self.cache[idx] = sample
         return sample
+
 
 # Trasform sample into tensor structure.
 class ToTensor(object):
@@ -133,5 +134,13 @@ class ToTensor(object):
         gt=sample['gt']
         T=sample['time']
         R=sample['range']
-        #print(type(R))
-        return {'imu': torch.from_numpy(imu),'gt':torch.from_numpy(gt),'time':T,'range':R}
+
+        return {'imu': torch.from_numpy(imu).to(dev),
+                'gt':torch.from_numpy(gt).to(dev),
+                'time':T,
+                'range':R}
+
+        # return {'imu': torch.from_numpy(imu),
+        #         'gt':torch.from_numpy(gt),
+        #         'time':T,
+        #         'range':R}
