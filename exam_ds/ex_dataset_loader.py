@@ -118,8 +118,8 @@ def plot_dataset(T):
     index=(np.round(np.linspace(0,len(T),1000)))
     for i in index:
         data=T[int(i)]
-        velo.append(data['gt'].cpu.numpy())
-        sp.append((data['gt'].cpu.norm()))
+        velo.append(data['gt'].cpu().detach().numpy())
+        sp.append((data['gt'].cpu().detach().norm()))
         t.append(data['time'])
 
     plt.figure()
