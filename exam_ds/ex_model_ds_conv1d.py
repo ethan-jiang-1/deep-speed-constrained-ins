@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 import time
 import traceback
-from torchsummary import summary
+from torchinfo import summary
 
 # Model
 
@@ -54,7 +54,7 @@ def inspect_model(model, batch_size=10):
             input_size = (6, 200)
             batch_input_size = (batch_size, *input_size)
             print("batch_input_shape", batch_input_size)
-            summary(model, (6, 200), batch_size=batch_size, device="cpu")  
+            summary(model, batch_input_size, verbose=2)
         model.model_examed = True
 
 
@@ -158,16 +158,20 @@ class ExamModelDs(object):
         return inspect_model(model)
 
     @classmethod
+    def get_empty_model(cls):
+        model = vel_regressor_conv1d()
+        #if torch.cuda.is_available():
+        #    model.to('cuda')
+        cls.exam_model(model)
+        return model 
+
+    @classmethod
     def get_model_from_new_training(cls, T, epochs_num=20, save_model=False, batch_size=10):
         model = None
         tls, vls = None, None
         try:    
-            model=vel_regressor_conv1d()
-            #if torch.cuda.is_available():
-            #    model.to('cuda')
-            cls.exam_model(model)
+            model = cls.get_empty_model()
 
-            #model = model.to(dev)
             if train_model:
                 tls, vls = train_model(model, T, epochs_num=epochs_num, batch_size=batch_size)
             else:

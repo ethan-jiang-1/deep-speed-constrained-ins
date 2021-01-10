@@ -73,7 +73,7 @@ def select_model(model_name):
     raise ValueError("no_model_for{}".format(model_name))
     
 
-def run_main(model_name="lstm", load_model=False):
+def run_model(model_name="conv1d", load_model=False):
     T, data_labels = Dsl.load_dataset()
 
     Emdl = select_model(model_name)
@@ -84,7 +84,7 @@ def run_main(model_name="lstm", load_model=False):
         if load_model:
             model = Emdl.get_model_from_trained_model()
         else:
-            model, tls, vls = Emdl.get_model_from_new_training(T, epochs_num=1)
+            model, tls, vls = Emdl.get_model_from_new_training(T, epochs_num=3)
             plot_traning(tls, vls)
     
     except Exception as ex:
@@ -104,12 +104,25 @@ def run_main(model_name="lstm", load_model=False):
     else:
         raise ValueError("invalid_model")
 
+def check_model(model_name="conv1d"):
+    Emdl = select_model(model_name)
+
+    model = Emdl.get_empty_model()
+    print(model)
+
 
 if __name__ == "__main__":
-    #model_name="lstm"
-    model_name="conv1d"
+    model_name="lstm"
+    #model_name="conv1d"
 
-    run_main(model_name=model_name, load_model=False)
+    load_model = False
+    inspect_model_only = False
+
+    if inspect_model_only:
+        check_model(model_name=model_name)
+    else:
+        run_model(model_name=model_name, 
+                load_model=False)
 
 
 

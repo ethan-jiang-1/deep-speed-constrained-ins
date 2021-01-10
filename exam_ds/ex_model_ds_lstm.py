@@ -4,12 +4,13 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 import time
 import traceback
-from torchsummary import summary
+#from torchsummary import summary
+from torchinfo import summary
 
 # Model
 class vel_regressor_lstm(torch.nn.Module):
     def __init__(self, Nin=200, Nout=1, batch_size=10, device=None,
-                 lstm_size=200, lstm_layers=6, dropout=0):
+                 lstm_size=100, lstm_layers=6, dropout=0):
         """
         Simple LSTM network
         Input: torch array [batch x frames x input_size]
@@ -33,23 +34,18 @@ class vel_regressor_lstm(torch.nn.Module):
 
         self.lstm = torch.nn.LSTM(self.input_size, self.lstm_size, self.num_layers, batch_first=True, dropout=dropout)
         self.linear1 = torch.nn.Linear(self.lstm_size, self.output_size * 60)
-        self.linear2 = torch.nn.Linear(self.output_size * 60, self.output_size)
+        self.linear2 = torch.nn.Linear(6 * 60, 60)
+        self.linear3 = torch.nn.Linear(60, self.output_size)
         #self.hidden = self.init_weights()
 
     def forward(self, input, hidden=None):
         # input tensor shape (10, 6, 200) in batch_mode(10)
-        output, _ = self.lstm(input) #, self.init_weights())
+        output, _ = self.lstm(input) 
         output = self.linear1(output)
+        output = output.view(output.size(0), -1)
         output = self.linear2(output)
+        output = self.linear3(output)
         return output
-
-    def init_weights(self):
-        h0 = torch.zeros(self.num_layers, self.batch_size, self.lstm_size)
-        c0 = torch.zeros(self.num_layers, self.batch_size, self.lstm_size)
-        if self.device is not None:
-            h0 = h0.to(self.device)
-            c0 = c0.to(self.device)
-        return Variable(h0), Variable(c0)
 
 
 def inspect_model(model, batch_size=10):
@@ -60,9 +56,8 @@ def inspect_model(model, batch_size=10):
             input_size = (6, 200)
             batch_input_size = (batch_size, *input_size)
             print("batch_input_shape", batch_input_size)
-            summary(model, (6, 200), batch_size=batch_size, device="cpu")  
+            summary(model, batch_input_size, verbose=2)
         model.model_examed = True
-
 
 model_activation = {}
 def get_activation(name):
@@ -164,16 +159,19 @@ class ExamModelDs(object):
         inspect_model(model)
 
     @classmethod
+    def get_empty_model(cls):
+        model = vel_regressor_lstm()
+        #if torch.cuda.is_available():
+        #    model.to('cuda')
+        cls.exam_model(model)
+        return model        
+
+    @classmethod
     def get_model_from_new_training(cls, T, epochs_num=20, save_model=False, batch_size=10):
         model = None
         tls, vls = None, None
         try:    
-            model = vel_regressor_lstm()
-            #if torch.cuda.is_available():
-            #    model.to('cuda')
-            cls.exam_model(model)
-
-            #model = model.to(dev)
+            model = cls.get_empty_model()
             if train_model:
                 tls, vls = train_model(model, T, epochs_num=epochs_num, batch_size=batch_size)
             else:
