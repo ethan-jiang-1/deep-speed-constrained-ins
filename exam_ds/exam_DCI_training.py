@@ -32,16 +32,10 @@ except:
 
 #Import python functions.
 try:
-    from exam_ds.dataset import OdometryDataset
-    from exam_ds.dataset import ToTensor
-    from exam_ds.ex_model import ExamModelDs as Emdl
     from exam_ds.ex_dataset_loader import DataLoaderDs as Dsl
     from exam_ds.ex_plot_train import PlotTrainDs as Ptn
     from exam_ds.ex_plot_test import PlotTrainDs as Ptt
 except:
-    from dataset import OdometryDataset
-    from dataset import ToTensor
-    from ex_model import ExamModelDs as Emdl
     from ex_dataset_loader import DataLoaderDs as Dsl
     from ex_plot_train import PlotTrainDs as Ptn
     from ex_plot_test import PlotTrainDs as Ptt
@@ -55,8 +49,19 @@ def plot_traning(tls, vls):
     plt.plot(np.log(np.array(vls)),label = 'Validation loss')
 
 
+def select_model():
+    #Import python functions.
+    try:
+        from exam_ds.ex_model_ds import ExamModelDs as Emdl
+    except:
+        from ex_model_ds import ExamModelDs as Emdl
+    return Emdl
+    
+
 def run_main(load_model=False):
     T, data_labels = Dsl.load_dataset()
+
+    Emdl = select_model()
 
     model = None
     try:    
@@ -73,8 +78,11 @@ def run_main(load_model=False):
 
     Emdl.exam_model(model)
 
+    # plot on trained testset (tain/val)
     Ptn.plot_all(model, T, data_labels)
-    Ptt.plot_all(model, data_labels)
+
+    # test on test (not tranined)
+    Ptt.plot_all(model, test_folders=["/static/dataset-04/"])
 
     plt.show()
 

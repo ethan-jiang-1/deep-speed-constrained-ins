@@ -172,12 +172,14 @@ class ExamModelDs(object):
         #save model
         if save_model:
             torch.save(model,'./full_new.pt')
+        cls.attach_eval_pred(model)
         return model, tls, vls
 
     @classmethod
     def get_model_from_trained_model(cls):
         model= torch.load('./full_new.pt', map_location=lambda storage, loc: storage)
         cls.exam_model(model)
+        cls.attach_eval_pred(model)
         return model
 
     @classmethod
@@ -186,3 +188,10 @@ class ExamModelDs(object):
         var = Variable(features.float())
         result = model(var)
         return result.data[0].numpy()
+
+    @classmethod
+    def attach_eval_pred(cls, model):
+        def attached_eval_pred(features):
+            return cls.eval_pred(model, features)
+        if not hasattr(model, "eval_pred"):
+            model.eval_pred = attached_eval_pred

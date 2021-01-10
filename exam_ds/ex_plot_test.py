@@ -12,25 +12,14 @@ try:
 except:
     pass
 
-#Import python functions.
-try:
-    from exam_ds.dataset import OdometryDataset
-    from exam_ds.dataset import ToTensor
-    from exam_ds.ex_model import ExamModelDs as Emdl
-except:
-    from dataset import OdometryDataset
-    from dataset import ToTensor
-    from ex_model import ExamModelDs as Emdl
-
-
-
 def _get_val_gt(data_gt):
     val = torch.norm(data_gt, 2, 1)
     val = val.type(torch.FloatTensor)
     return val.numpy()
 
 def get_pred_gt_vals(model, data):
-    val_pred = Emdl.eval_pred(model, data['imu'])
+    #val_pred = Emdl.eval_pred(model, data['imu'])
+    val_pred = model.eval_pred(data['imu'])
     val_preds = val_pred.ravel().tolist()
 
     val_gt = _get_val_gt(data['gt'])
@@ -38,13 +27,27 @@ def get_pred_gt_vals(model, data):
     
     return val_preds, val_gts
 
-
-def plot_model_on_test_dataset(model):
-    plt.figure()
+def get_test_dataset(test_folders=None):
+    #Import python functions.
+    try:
+        from exam_ds.dataset import OdometryDataset
+        from exam_ds.dataset import ToTensor
+    except:
+        from dataset import OdometryDataset
+        from dataset import ToTensor
+    
     # Evaluate in unknown data to the network.
     nfolders=[]
-    nfolders.append("/static/dataset-04/")
-    Test = OdometryDataset("./../data_ds/",nfolders,transform=ToTensor())
+    if test_folders is None:
+        nfolders += ["/static/dataset-04/"]
+    else:
+        nfolders += test_folders
+    Test = OdometryDataset("./../data_ds/", nfolders, transform=ToTensor())   
+    return Test 
+
+def plot_model_on_test_dataset(model, test_folders=None):
+
+    Test = get_test_dataset(test_folders)
     test_Loader = DataLoader(Test, batch_size=1,shuffle=False, num_workers=1)
 
     pred_sp=[]
@@ -60,6 +63,8 @@ def plot_model_on_test_dataset(model):
 
 
         t.append(data['time'])
+
+    plt.figure()
     plt.subplot(211)
     plt.plot(pred_sp)
     plt.ylabel('Predicted speed')
@@ -82,5 +87,5 @@ def plot_model_on_test_dataset(model):
 
 class PlotTrainDs(object):
     @classmethod
-    def plot_all(cls, model, data_labels):
-        plot_model_on_test_dataset(model)
+    def plot_all(cls, model, test_folders):
+        plot_model_on_test_dataset(model, test_folders=test_folders)

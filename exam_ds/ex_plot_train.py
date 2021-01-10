@@ -4,23 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 
-try:
-    import os
-    #print(os.getcwd())
-    os.chdir("exam_ds")
-    #print(os.getcwd())
-except:
-    pass
-
-#Import python functions.
-try:
-    from exam_ds.dataset import OdometryDataset
-    from exam_ds.dataset import ToTensor
-    from exam_ds.ex_model import ExamModelDs as Emdl
-except:
-    from dataset import OdometryDataset
-    from dataset import ToTensor
-    from ex_model import ExamModelDs as Emdl
 
 def _get_val_gt(data_gt):
     val = torch.norm(data_gt, 2, 1)
@@ -28,7 +11,8 @@ def _get_val_gt(data_gt):
     return val.numpy()
 
 def get_pred_gt_vals(model, data):
-    val_pred = Emdl.eval_pred(model, data['imu'])
+    # val_pred = Emdl.eval_pred(model, data['imu'])
+    val_pred = model.eval_pred(data['imu'])
     val_preds = val_pred.ravel().tolist()
 
     val_gt = _get_val_gt(data['gt'])
