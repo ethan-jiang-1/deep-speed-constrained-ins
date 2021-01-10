@@ -123,7 +123,7 @@ class OdometryDataset(Dataset):
             
         return sample
 
-        # Trasform sample into tensor structure.
+# Trasform sample into tensor structure.
 class ToTensor(object):
     """Convert ndarrays in sample to Tensors."""
     def __call__(self, sample):
