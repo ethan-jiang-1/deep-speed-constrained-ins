@@ -52,9 +52,9 @@ def plot_traning(tls, vls):
 def select_model():
     #Import python functions.
     try:
-        from exam_ds.ex_model_ds import ExamModelDs as Emdl
+        from exam_ds.ex_model_ds_conv1d import ExamModelDs as Emdl
     except:
-        from ex_model_ds import ExamModelDs as Emdl
+        from ex_model_ds_conv1d import ExamModelDs as Emdl
     return Emdl
     
 
