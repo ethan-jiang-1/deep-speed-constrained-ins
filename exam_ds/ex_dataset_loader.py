@@ -57,13 +57,14 @@ def get_data_folders_and_labs():
 
 
 
-def plot_data_labels(folders, labs):
+def find_and_plot_data_labels(folders, labs, plot=True):
     #visualize labels in sample vector.
     ind=0
     acc_lab=0
     acc_dat=0
     data_labels=[]
-    plt.figure(figsize=(8, 35))
+    if plot:
+        plt.figure(figsize=(8, 35))
     for idx, folder in enumerate(folders):
         #Load one folder at a time
         data=OdometryDataset("../data_ds",[folder],transform=ToTensor())
@@ -83,7 +84,8 @@ def plot_data_labels(folders, labs):
                 tim=10000
             lab=labs[ind][2]
             dat.append([tim,lab])
-            ind=ind+1      
+            ind=ind+1
+              
         #Make label vector for each sample
         label=[]
         start=data[0]['time']
@@ -95,14 +97,18 @@ def plot_data_labels(folders, labs):
         #plot results
         acc_dat=acc_dat+len(data)
         acc_lab=acc_lab+len(label)
-        plt.subplot(23,1,idx+1)
-        plt.plot(label)
-        plt.ylim(-1,5)
-        frame1 = plt.gca()
-        frame1.axes.get_xaxis().set_visible(False)
-        plt.yticks([0,1,2,3,4], ['Standing','Walking','Stairs','Escalator','Elevator'])
-        plt.grid(b=True,axis='y')   
+
+        if plot:
+            ax = plt.subplot(23,1,idx+1)
+            ax.set_title(folder)
+            plt.plot(label)
+            plt.ylim(-1,5)
+            frame1 = plt.gca()
+            frame1.axes.get_xaxis().set_visible(False)
+            plt.yticks([0,1,2,3,4], ['Standing','Walking','Stairs','Escalator','Elevator'])
+            plt.grid(b=True,axis='y')   
         data_labels.append(label)
+    
     return data_labels
 
 
@@ -121,9 +127,10 @@ def plot_dataset(T):
         velo.append(data['gt'].numpy())
         sp.append((data['gt'].norm()))
         t.append(data['time'])
+    
     plt.figure()
     plt.plot(velo)
-    plt.title('Velocity Vector')
+    plt.title('Velocity Vector (entrie train set, interval 1000)')
     plt.xlabel('sample')
     plt.ylabel('Speed (m/s)')
     plt.legend(['x','z','y'])
@@ -136,7 +143,7 @@ def plot_dataset(T):
 def load_dataset():
     folders, labs = get_data_folders_and_labs()
 
-    data_labels = plot_data_labels(folders, labs)
+    data_labels = find_and_plot_data_labels(folders, labs)
     
     # Create dataset reader.
     print("Final OdometryDataset")
