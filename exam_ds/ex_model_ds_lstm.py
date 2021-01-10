@@ -54,8 +54,8 @@ class vel_regressor_lstm(torch.nn.Module):
 
 def inspect_model(model, batch_size=10):
     if not hasattr(model, "model_examed"):
+        print(model)
         if not torch.cuda.is_available():
-            print(model)
             # 6 channel, 200 samples/channel,  this does not include batch size
             input_size = (6, 200)
             batch_input_size = (batch_size, *input_size)

@@ -9,16 +9,16 @@ from torchsummary import summary
 # Model
 
 class vel_regressor_conv1d(torch.nn.Module):
-    def __init__(self, Nin=6, Nout=1, Nlinear=1920):
+    def __init__(self, Nin=6, Nout=1, Nlinear=5760):
         super(vel_regressor_conv1d, self).__init__()
 
         # Convolutional layers
         self.model1 = torch.nn.Sequential(
         torch.nn.Conv1d(Nin, 180, kernel_size=1, stride=1, groups=Nin),
         torch.nn.ReLU(),
-        torch.nn.Conv1d(180, 90, kernel_size=2, stride=1, groups=Nin),
+        torch.nn.Conv1d(180, 180, kernel_size=2, stride=1, groups=Nin),
         torch.nn.ReLU(),
-        torch.nn.Conv1d(90,  60, kernel_size=3, stride=1),
+        torch.nn.Conv1d(180, 180, kernel_size=3, stride=1),
         torch.nn.ReLU(),
         torch.nn.MaxPool1d(10, stride=6),
         )
@@ -48,8 +48,8 @@ class vel_regressor_conv1d(torch.nn.Module):
 
 def inspect_model(model, batch_size=10):
     if not hasattr(model, "model_examed"):
+        print(model)        
         if not torch.cuda.is_available():
-            print(model)
             # 6 channel, 200 samples/channel,  this does not include batch size
             input_size = (6, 200)
             batch_input_size = (batch_size, *input_size)
