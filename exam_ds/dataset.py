@@ -23,7 +23,7 @@ import csv
 
 # Dataset class
 class OdometryDataset(Dataset):
-    def __init__(self, data_folder,datasets, transform=None):
+    def __init__(self, data_folder, datasets, transform=None):
         """
         Args:
             data_folder (string): Path to the csv file with annotations.
@@ -39,6 +39,7 @@ class OdometryDataset(Dataset):
         self.limits=[]
         self.limits.append(0)
         plot=False
+        self.cache = {}
         #scroll trough folders and attach data. Since there is not that many sequences, one array is used.
         for dataset in datasets:
             imu_path=data_folder+dataset+"iphone/imu-gyro.csv"
@@ -63,27 +64,28 @@ class OdometryDataset(Dataset):
                 plt.plot(self.imu[ind].values)
                 plt.show()                
             ind=ind+1
-       
+        print("ODS on {} yiels samples: {} ".format(datasets, len(self)))
 
     # Define the length of the dataset as the number of sequences that can be extracted.  
     def __len__(self):
-
         return int(np.floor((self.limits[-1]-1)/100))
     
     # read a sample of 100 measurements, avoiding the edges of the diferent captures.
     def __getitem__(self, idx):
-        if idx>len(self):
+        if idx in self.cache:
+            return self.cache[idx]
+
+        if idx > len(self):
             raise ValueError('Index out of range')
         else:
-            idx=idx*100
+            idx = idx*100
 
         dset = None       
         for index in range(0,len(self.limits)):
-            if idx>=self.limits[index] and idx<self.limits[index+1]:
-
+            if idx >= self.limits[index] and idx < self.limits[index+1]:
                 dset=index
-                off=np.random.randint(low=50,high=100)
-                idx=idx-self.limits[index]+off
+                off = np.random.randint(low=50, high=100)
+                idx=idx - self.limits[index] + off
                 break
         
         IMU=self.imu[dset][idx:idx+200].values
@@ -99,7 +101,6 @@ class OdometryDataset(Dataset):
         inde=np.logical_and([self.post[dset]['t'].values<te] , [self.post[dset]['t'].values>ti])
         inde=np.squeeze(inde)
 
-        
         posi=self.pos[dset][inde].values
         dt=np.diff(self.post[dset][inde].values,axis=0)
         dp=np.diff(posi,axis=0)
@@ -120,7 +121,8 @@ class OdometryDataset(Dataset):
         sample={'imu':IMU,'gt':gt,'time':T[0],'range':[minv,maxv]}
         if self.transform:
             sample = self.transform(sample)
-            
+        
+        self.cache[idx] = sample
         return sample
 
 # Trasform sample into tensor structure.

@@ -43,7 +43,9 @@ def get_data_folders_and_labs():
     folders.append("/static/dataset-01/")
     folders.append("/static/dataset-02/")
     folders.append("/static/dataset-03/")
+    #folders.append("/static/dataset-04/")
     folders.append("/swing/dataset-01/")
+    #folders.append("/swing/dataset-02/")
 
     #Load saved motion labels
     labs=[]
@@ -131,15 +133,13 @@ def plot_dataset(T):
     plt.ylabel('Speed (m/s)')
     plt.plot(sp)
 
-
-
 def load_dataset():
-
     folders, labs = get_data_folders_and_labs()
 
     data_labels = plot_data_labels(folders, labs)
     
     # Create dataset reader.
+    print("Final OdometryDataset")
     T = OdometryDataset("../data_ds", folders, transform=ToTensor())
     return T,  data_labels
 

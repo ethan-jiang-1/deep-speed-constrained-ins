@@ -107,17 +107,14 @@ def train_model(model, T, epochs_num=20, batch_size=10):
     #Configure data loaders and optimizer
     learning_rate = 1e-6
 
-    index=np.arange(len(T))
-    np.random.shuffle(index)
-    train = index[1:int(np.floor(len(T)/10*9))]
-    test = index[int(np.floor(len(T)/10*9)):-1]
+    all_ndxs=np.arange(len(T))
+    np.random.shuffle(all_ndxs)
+    train_ndxs = all_ndxs[1:int(np.floor(len(T)/10*9))]
+    test_ndxs = all_ndxs[int(np.floor(len(T)/10*9)):-1]
     
     #Split training and validation.
-    training_loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train)))
-    validation_loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test)))
-    #Create secondary loaders
-    #single_train_Loader = DataLoader(T, batch_size=1,shuffle=False, num_workers=1, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train)))
-    #single_validation_Loader = DataLoader(T, batch_size=1,shuffle=False, num_workers=1, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test)))
+    training_loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train_ndxs)))
+    validation_loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test_ndxs)))
 
     #define optimizer.
     optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
