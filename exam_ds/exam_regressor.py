@@ -56,19 +56,12 @@ def select_model(model_name):
     if model_name in ["conv1d", "lstm"]:
         print("model selected {}".format(model_name))
 
+        Emdl = None
         if model_name == "conv1d":
-            try:
-                from exam_ds.ex_model_ds_conv1d import ExamModelDs as Emdl
-            except:
-                from ex_model_ds_conv1d import ExamModelDs as Emdl
-            print(Emdl)
-            return Emdl        
+            from ex_model_ds_conv1d import ExamModelDs as Emdl
         else:
-            try:
-                from exam_ds.ex_model_ds_lstm import ExamModelDs as Emdl
-            except:
-                from ex_model_ds_lstm import ExamModelDs as Emdl
-            print(Emdl)
+            from ex_model_ds_lstm import ExamModelDs as Emdl
+        if Emdl is not None:
             return Emdl
     raise ValueError("no_model_for{}".format(model_name))
     
@@ -76,25 +69,16 @@ def select_model(model_name):
 def run_model(model_name="conv1d", load_model=False):
     T, data_labels = Dsl.load_dataset()
 
-    Emdl = None
-    try:
-        Emdl = select_model(model_name)
-    except Exception as ex:
-        raise ex
 
-    model = None
-    try:    
-        #load pretrained model or create new one.
-        if load_model:
-            model = Emdl.get_model_from_trained_model()
-        else:
-            model, tls, vls = Emdl.get_model_from_new_training(T, epochs_num=3)
-            plot_traning(tls, vls)
+    Emdl = select_model(model_name)
+   
+    #load pretrained model or create new one.
+    if load_model:
+        model = Emdl.get_model_from_trained_model()
+    else:
+        model, tls, vls = Emdl.get_model_from_new_training(T, epochs_num=3)
+        plot_traning(tls, vls)
     
-    except Exception as ex:
-        print("Exception occured: ", ex)
-        print(traceback.format_exc())
-        raise ex
 
     Emdl.exam_model(model)
 
@@ -106,8 +90,7 @@ def run_model(model_name="conv1d", load_model=False):
         Ptt.plot_all(model, test_folders=["/static/dataset-04/"])
 
         plt.show()
-    else:
-        raise ValueError("invalid_model")
+
 
 def check_model(model_name="conv1d"):
     Emdl = select_model(model_name)
@@ -128,6 +111,7 @@ if __name__ == "__main__":
     else:
         run_model(model_name=model_name, 
                 load_model=False)
+    
 
 
 
