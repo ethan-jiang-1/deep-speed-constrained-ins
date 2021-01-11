@@ -2,12 +2,29 @@ import numpy as np
 import plyfile
 import quaternion
 
-vobse = 1
 
-def ex_write_ply_to_file(path, position, orientation, acceleration=None,
-                      global_rotation=np.identity(3, float), local_axis=None,
-                      trajectory_color=None, num_axis=3,
-                      length=1.0, kpoints=100, interval=100):
+
+def _get_axis_color(axis_ndx, step, total):
+    axis_color = [[0, 255, 0], [255, 0, 0], [0, 0, 255], [255, 0, 255]]
+    color = axis_color[axis_ndx]
+
+    ratio = ((total - step) / total) * 0.5 + 0.5
+    return [int(color[0] * ratio), int(color[1] * ratio), int(color[2] * ratio)] 
+
+def _get_traj_color(step, total):
+    ratio = ((total - step) / total) * 0.5 + 0.5
+    return [0, int(255*ratio), int(255*ratio)]
+
+def ex_write_ply_to_file(path, position, orientation, 
+                      acceleration=None,
+                      global_rotation=np.identity(3, float), 
+                      local_axis=None,
+                      trajectory_color=None, 
+                      num_axis=3,
+                      length=1.0, 
+                      kpoints=100, 
+                      interval=100, 
+                      vobse = 0):
     """
     Visualize camera trajectory as ply file.
     
@@ -17,7 +34,7 @@ def ex_write_ply_to_file(path, position, orientation, acceleration=None,
     :param acceleration: (optional) Nx3 array of acceleration
     :param global_rotation: (optional) global rotation
     :param local_axis: (optional) local axis vector
-    :param trajectory_color: (optional) the color of the trajectory. The default is [255, 0, 0] (red)
+    :param trajectory_color: (optional) the color of the trajectory. The default is [0, 255, 255] (cyan)
     :return: None
     """
 
@@ -56,10 +73,10 @@ def ex_write_ply_to_file(path, position, orientation, acceleration=None,
     # mix color after pos in position data as numpy data (vertex_type)
     if trajectory_color is None:
         trajectory_color = [0, 255, 255]
-    axis_color = [[0, 255, 0], [255, 0, 0], [0, 0, 255], [255, 0, 255]]
+
     vertex_type = [('x', 'f4'), ('y', 'f4'), ('z', 'f4'), ('red', 'u1'), ('green', 'u1'), ('blue', 'u1')]
     positions_data = np.empty((position_transformed.shape[0],), dtype=vertex_type)
-    positions_data[:] = [tuple([*i, *trajectory_color]) for i in position_transformed]
+    positions_data[:] = [tuple([*poss, *_get_traj_color(i, position_transformed.shape[0])]) for i, poss in enumerate(position_transformed)]
 
     positions_data_all = np.copy(positions_data)
     if local_axis is None:
@@ -75,7 +92,7 @@ def ex_write_ply_to_file(path, position, orientation, acceleration=None,
         for k in range(num_axis):
             for j in range(kpoints):
                 axes_pts = position_transformed[sample_pt[i]].flatten() + global_axes[:, k].flatten() * j * length / kpoints
-                app_vertex[k*kpoints + j] = tuple([*axes_pts, *axis_color[k]])
+                app_vertex[k*kpoints + j] = tuple([*axes_pts, *_get_axis_color(k, i, num_sample)])
 
         positions_data_all = np.concatenate([positions_data_all, app_vertex], axis=0)
 

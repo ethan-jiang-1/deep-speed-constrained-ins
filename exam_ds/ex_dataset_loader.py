@@ -36,9 +36,14 @@ def get_data_folders_and_labs():
     #add path to used folders
     #Advio
     folders=[]
-    for i in [13,15,16,17,1,2,3,5,6,8,9,10,11,12,18,19,20,21,22]:  
+    #for i in [13,15,16,17,1,2,3,5,6,8,9,10,11,12,18,19,20,21,22]:  
+    for i in [1,2,3,5,6,8,9,10,11,12,13,15,16,17,18,19,20,21,22]:  
         path= '/advio-'+str(i).zfill(2)+'/'
-        folders.append(path)  
+        folders.append(path)
+    #for i in [4,7,14,17]:
+    #    path= '/advio-'+str(i).zfill(2)+'/'
+    #    folders.append(path)         
+    
     #Extra data
     folders.append("/static/dataset-01/")
     folders.append("/static/dataset-02/")
