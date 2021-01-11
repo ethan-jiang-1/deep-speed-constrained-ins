@@ -23,9 +23,11 @@ import csv
 
 # Dataset class
 class OdometryDataset(Dataset):
-    def __init__(self, data_folder, datasets, transform=None):
+    def __init__(self, data_folder, datasets, transform=None, labs=None):
         self.data_folder = data_folder
         self.datasets = datasets
+        self.labs = labs
+
         """
         Args:
             data_folder (string): Path to the csv file with annotations.
@@ -58,20 +60,23 @@ class OdometryDataset(Dataset):
             ind=ind+1
         print("ODS on {} yiels samples: {} ".format(datasets, len(self)))
 
-    def plot_dataset(self):
+    def plot_dataset_internals(self):
         datasets = self.datasets
         ind = 0
         for dataset in datasets:
+            print("plot ", dataset)
             plt.figure()
+            plt.title(dataset)
+            plt.subplot(211)
             plt.plot(self.pos[ind].values)
-            print(np.shape(np.diff(self.pos[ind].values,axis=0,n=1)))
+            #print(np.shape(np.diff(self.pos[ind].values,axis=0,n=1)))
             dt=np.diff(self.post[ind].values,axis=0)
-            print(np.shape(dt))
+            #print(np.shape(dt))
             plt.plot(np.mean((np.diff(self.pos[ind],axis=0)/dt[:,None]),0))
-            
-            plt.figure()
+            #plt.figure()
+            plt.subplot(212)
             plt.plot(self.imu[ind].values)
-            plt.show()                
+            #plt.show()                
             ind=ind+1        
 
     # Define the length of the dataset as the number of sequences that can be extracted.  

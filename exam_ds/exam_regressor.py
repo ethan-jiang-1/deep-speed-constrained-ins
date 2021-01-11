@@ -66,9 +66,14 @@ def select_model(model_name):
     raise ValueError("no_model_for{}".format(model_name))
     
 
-def run_model(model_name="conv1d", load_model=False):
+def run_model(model_name="conv1d", load_model=False, plt_show=True):
     T, data_labels = Dsl.load_dataset()
-    T.plot_dataset()
+
+    Dsl.plot_dataset(T)
+    Dsl.plot_sub_dataset(T)
+    # Dsl.plot_dataset_internals(T)
+    if plt_show:
+        plt.show()
 
 
     Emdl = select_model(model_name)
@@ -90,7 +95,8 @@ def run_model(model_name="conv1d", load_model=False):
         # test on test (not tranined)
         Ptt.plot_all(model, test_folders=["/static/dataset-04/"])
 
-        plt.show()
+        if plt_show():
+            plt.show()
 
 
 def check_model(model_name="conv1d"):
