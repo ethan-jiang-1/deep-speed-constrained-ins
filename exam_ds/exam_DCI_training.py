@@ -76,7 +76,11 @@ def select_model(model_name):
 def run_model(model_name="conv1d", load_model=False):
     T, data_labels = Dsl.load_dataset()
 
-    Emdl = select_model(model_name)
+    Emdl = None
+    try:
+        Emdl = select_model(model_name)
+    except Exception as ex:
+        raise ex
 
     model = None
     try:    
@@ -90,6 +94,7 @@ def run_model(model_name="conv1d", load_model=False):
     except Exception as ex:
         print("Exception occured: ", ex)
         print(traceback.format_exc())
+        raise ex
 
     Emdl.exam_model(model)
 
