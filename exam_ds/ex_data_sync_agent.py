@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import scipy
 
 try:
     import os
@@ -13,6 +14,30 @@ try:
     from exam_ds.ex_ply_output import ex_write_ply_to_file
 except:
     from ex_ply_output import ex_write_ply_to_file
+
+
+def interpolate_vector_linear(input, input_timestamp, output_timestamp):
+    """
+    This function interpolate n-d vectors (despite the '3d' in the function name) into the output time stamps.
+    
+    Args:
+        input: Nxd array containing N d-dimensional vectors.
+        input_timestamp: N-sized array containing time stamps for each of the input quaternion.
+        output_timestamp: M-sized array containing output time stamps.
+    Return:
+        quat_inter: Mxd array containing M vectors.
+    """
+    assert input.shape[0] == input_timestamp.shape[0]
+    func = scipy.interpolate.interp1d(input_timestamp, input, axis=0)
+    interpolated = func(output_timestamp)
+    return interpolated
+
+def get_synced_data(df_data, output_timestamp):
+    data = df_data.to_numpy()
+    input = data.transpose(1, 0)[1:].transpose(1, 0)
+    input_timestamp = data.transpose(1, 0)[0]
+    synced_data = interpolate_vector_linear(input, input_timestamp, output_timestamp)
+    return synced_data
 
 
 class DataSyncAgent(object):
@@ -38,8 +63,7 @@ class DataSyncAgent(object):
         self.ply_raw_pose = self.output_dir + "/trj_raw_pose.ply"
         self.ply_raw_tango = self.output_dir + "/trj_raw_tango.ply"
 
-
-        self.ply_synced_pose = self.output_dir + "/trj_synced_pose.ply"
+        self.csv_synced_data = self.output_dir + "/synced_data.csv"
 
     def load_raw_df(self, path, names, vobose=1):
         if vobose >= 1:
@@ -140,3 +164,56 @@ class DataSyncAgent(object):
 
         return True
 
+    def output_sync(self, re_gen=False):
+        if not(os.path.isfile(self.csv_synced_data) or re_gen):
+            return
+        
+        secs_pose = self.df_pose["sec"].to_numpy()
+        secs_gyro = self.df_gyro["sec"].to_numpy()
+        secs_acce = self.df_acce["sec"].to_numpy()
+        secs_magn = self.df_magn["sec"].to_numpy()
+
+        start_ndx = -1
+        end_ndx = -1
+        secs_start, secs_end = -1, -1
+        for i in range(1000):
+            secs_start = secs_pose[i]
+            if secs_start >= secs_gyro[0] and \
+               secs_start >= secs_acce[0] and \
+               secs_start >= secs_magn[0]:
+               start_ndx = i
+               break
+
+        for i in range(len(secs_pose) - 1, len(secs_pose)-1000, -1):
+            secs_end = secs_pose[i]
+            if secs_end <= secs_gyro[-1] and \
+               secs_end <= secs_acce[-1] and \
+               secs_end <= secs_magn[-1]:
+               end_ndx = i
+               break        
+
+        if start_ndx == -1 or end_ndx == -1:
+            raise ValueError("no sec range")
+        print("range of the sec: {:.4f} to {:.4f}".format(secs_pose[start_ndx], secs_pose[end_ndx]))
+
+        sel_pose = self.df_pose.to_numpy()[start_ndx:end_ndx]
+        output_timestamp = sel_pose.transpose(1, 0)[0]
+
+        synced_data_gypo = get_synced_data(self.df_gyro, output_timestamp).transpose(0,1)
+        synced_data_acce = get_synced_data(self.df_acce, output_timestamp).transpose(0,1)
+        synced_data_magn = get_synced_data(self.df_magn, output_timestamp).transpose(0,1)
+        synced_pose = sel_pose.transpose(0, 1)
+
+        synced_full = np.column_stack((synced_pose, synced_data_gypo, synced_data_acce, synced_data_magn))
+        columns = ["sec", "pos_x", "pos_y", "pos_z", "rw", "rx", "ry", "rz"] + \
+                  ["w_x", "w_y", "w_z"] + ["a_x", "a_y", "a_z"] + ["m_x", "m_y", "m_z"]
+                    
+        df_synced_full = pd.DataFrame(synced_full, columns=columns)
+        print(df_synced_full)
+        print(df_synced_full.describe())
+        
+        df_synced_full.to_csv(self.csv_synced_data, float_format="%.6f")
+        return True
+        
+
+        
