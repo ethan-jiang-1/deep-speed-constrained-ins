@@ -24,6 +24,8 @@ import csv
 # Dataset class
 class OdometryDataset(Dataset):
     def __init__(self, data_folder, datasets, transform=None):
+        self.data_folder = data_folder
+        self.datasets = datasets
         """
         Args:
             data_folder (string): Path to the csv file with annotations.
@@ -52,19 +54,25 @@ class OdometryDataset(Dataset):
             self.pos.append(pos[list('bcd')])  # pos_x, pos_y, pos_z  
             self.transform = transform
             self.limits.append(self.limits[ind]+len(self.imu[ind])-300)
-      
-            if plot:
-                plt.plot(self.pos[ind].values)
-                print(np.shape(np.diff(self.pos[ind].values,axis=0,n=1)))
-                plt.figure()
-                dt=np.diff(self.post[ind].values,axis=0)
-                print(np.shape(dt))
-                plt.plot(np.mean((np.diff(self.pos[ind],axis=0)/dt[:,None]),0))
-                plt.figure()
-                plt.plot(self.imu[ind].values)
-                plt.show()                
+             
             ind=ind+1
         print("ODS on {} yiels samples: {} ".format(datasets, len(self)))
+
+    def plot_dataset(self):
+        datasets = self.datasets
+        ind = 0
+        for dataset in datasets:
+            plt.figure()
+            plt.plot(self.pos[ind].values)
+            print(np.shape(np.diff(self.pos[ind].values,axis=0,n=1)))
+            dt=np.diff(self.post[ind].values,axis=0)
+            print(np.shape(dt))
+            plt.plot(np.mean((np.diff(self.pos[ind],axis=0)/dt[:,None]),0))
+            
+            plt.figure()
+            plt.plot(self.imu[ind].values)
+            plt.show()                
+            ind=ind+1        
 
     # Define the length of the dataset as the number of sequences that can be extracted.  
     def __len__(self):

@@ -68,6 +68,7 @@ def select_model(model_name):
 
 def run_model(model_name="conv1d", load_model=False):
     T, data_labels = Dsl.load_dataset()
+    T.plot_dataset()
 
 
     Emdl = select_model(model_name)
@@ -76,7 +77,7 @@ def run_model(model_name="conv1d", load_model=False):
     if load_model:
         model = Emdl.get_model_from_trained_model()
     else:
-        model, tls, vls = Emdl.get_model_from_new_training(T, epochs_num=3)
+        model, tls, vls = Emdl.get_model_from_new_training(T, epochs_num=2)
         plot_traning(tls, vls)
     
 
@@ -100,8 +101,8 @@ def check_model(model_name="conv1d"):
 
 
 if __name__ == "__main__":
-    model_name="lstm"
-    #model_name="conv1d"
+    #model_name="lstm"
+    model_name="conv1d"
 
     load_model = False
     inspect_model_only = False

@@ -1,7 +1,8 @@
 venv
 # data_ds
 *.mov
-data_ds/**/tango/**
+data_ds/**/tango/
+data_ds/**/sync/
 
 __pycache__
 python/__pycache__
