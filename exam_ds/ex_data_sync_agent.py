@@ -210,9 +210,13 @@ class DataSyncAgent(object):
                     
         df_synced_full = pd.DataFrame(synced_full, columns=columns)
         print(df_synced_full)
-        print(df_synced_full.describe())
-        
-        df_synced_full.to_csv(self.csv_synced_data, float_format="%.6f")
+        #print(df_synced_full.describe())
+
+        df_sync_ordered = df_synced_full[["sec"] + ["w_x", "w_y", "w_z"] + ["a_x", "a_y", "a_z"] + ["m_x", "m_y", "m_z"] + ["pos_x", "pos_y", "pos_z", "rw", "rx", "ry", "rz"]]
+        print(df_sync_ordered)
+        #print(df_sync_ordered.describe())
+
+        df_sync_ordered.to_csv(self.csv_synced_data, float_format="%.6f")
         return True
         
 
