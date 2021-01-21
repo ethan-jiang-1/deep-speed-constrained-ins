@@ -113,9 +113,13 @@ def train_model(model, T, epochs_num=10, batch_size=10):
     train_ndxs = all_ndxs[1:int(np.floor(len(T)/10*9))]
     test_ndxs = all_ndxs[int(np.floor(len(T)/10*9)):-1]
     
+    num_workers = 4
+    if g_using_cuda:
+        num_workers = 0
+
     #Split training and validation.
-    training_loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train_ndxs)))
-    validation_loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test_ndxs)))
+    training_loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=num_workers, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(train_ndxs)))
+    validation_loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=num_workers, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test_ndxs)))
 
     #define optimizer.
     optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
