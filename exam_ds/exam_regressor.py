@@ -82,7 +82,9 @@ def run_model(model_name="conv1d", load_model=False, plt_show=True):
     if load_model:
         model = Emdl.get_model_from_trained_model()
     else:
-        model, tls, vls = Emdl.get_model_from_new_training(T, epochs_num=2)
+        model = Emdl.get_empty_model()
+        Emdl.exam_model(model)
+        model, tls, vls = Emdl.keep_train_model(model, T, epochs_num=2)
         plot_traning(tls, vls)
     
 
