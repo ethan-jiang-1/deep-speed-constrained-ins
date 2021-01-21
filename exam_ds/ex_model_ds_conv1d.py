@@ -217,7 +217,6 @@ class ExamModelDs(object):
         if model is not None:
             if save_model:
                 cls.save_trained_model(model)
-            cls.attach_eval_pred(model)
         return model, tls, vls
 
     @classmethod
@@ -248,14 +247,12 @@ class ExamModelDs(object):
         if os.path.isfile(model_path):
             model= torch.load(model_path, map_location=lambda storage, loc: storage)
             cls.exam_model(model)
-            cls.attach_eval_pred(model)
             print("load pre-trained model from", model_path)
             return model
         model_path = cls.get_saved_model_path_name_gdrive()
         if os.path.isfile(model_path):
             model = torch.load(model_path, map_location=lambda storage, loc: storage)
             cls.exam_model(model)
-            cls.attach_eval_pred(model)
             print("load pre-trained model from", model_path)
             return model
 
@@ -268,6 +265,7 @@ class ExamModelDs(object):
         if g_using_cuda:
             var = var.cuda()
 
+        cls.attach_eval_pred(model)
         result = model(var)
         if g_using_cuda:
             result = result.cpu()
