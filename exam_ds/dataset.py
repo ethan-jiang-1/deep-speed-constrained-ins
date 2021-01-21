@@ -61,10 +61,14 @@ class OdometryDataset(Dataset):
             ind=ind+1
         print("ODS on {} yiels samples: {} ".format(datasets, len(self)))
 
-    def plot_dataset_internals(self):
+    def plot_dataset_internals(self, skip_ratio=2):
         datasets = self.datasets
         ind = 0
-        for dataset in datasets:
+        for i, dataset in enumerate(datasets):
+            if i % skip_ratio != 0:
+                print("skip plot", dataset)
+                continue
+
             print("plot ", dataset)
             plt.figure()
             plt.title(dataset)

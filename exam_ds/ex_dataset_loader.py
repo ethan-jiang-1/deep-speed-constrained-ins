@@ -231,5 +231,5 @@ class DataLoaderDs(object):
         ex_plot_sub_dataset(T)
 
     @classmethod
-    def plot_dataset_internals(cls, T):
-        T.plot_dataset_internals()
+    def plot_dataset_internals(cls, T, skip_ratio=2):
+        T.plot_dataset_internals(skip_ratio=skip_ratio)
