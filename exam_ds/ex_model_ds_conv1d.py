@@ -298,10 +298,10 @@ class ExamModelDs(object):
         if using_cuda:
             var = var.cuda()
 
-        cls.attach_eval_pred(model)
+        #cls.attach_eval_pred(model)
         result = model(var)
-        if using_cuda:
-            result = result.cpu()
+        #if using_cuda:
+        result = result.cpu()
 
         return result.data[0].numpy()
 
