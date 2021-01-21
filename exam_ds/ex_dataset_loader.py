@@ -62,7 +62,7 @@ def get_data_folders_and_labs():
 
 
 
-def find_and_plot_data_labels(folders, labs):
+def find_and_plot_data_labels(folders, labs, using_cuda=False):
     #visualize labels in sample vector.
     ind=0
     acc_lab=0
@@ -113,6 +113,8 @@ def find_and_plot_data_labels(folders, labs):
         #     plt.yticks([0,1,2,3,4], ['Standing','Walking','Stairs','Escalator','Elevator'])
         #     plt.grid(b=True,axis='y')   
         data_labels.append(label)
+    if using_cuda:
+        data_labels = np.array(data_labels).cuda()
     
     return data_labels
 
@@ -201,20 +203,20 @@ def ex_plot_dataset(T):
     plt.ylabel('Speed (m/s)')
     plt.plot(sp)
 
-def load_dataset():
+def _load_dataset(using_cuda=False):
     folders, labs = get_data_folders_and_labs()
 
-    data_labels = find_and_plot_data_labels(folders, labs)
+    data_labels = find_and_plot_data_labels(folders, labs, using_cuda=using_cuda)
     
     # Create dataset reader.
     print("Final OdometryDataset")
-    T = OdometryDataset("../data_ds", folders, transform=ToTensor(), labs=labs)
+    T = OdometryDataset("../data_ds", folders, transform=ToTensor(), labs=labs, using_cuda=using_cuda)
     return T,  data_labels
 
 class DataLoaderDs(object):
     @classmethod
-    def load_dataset(cls):
-        T, data_labels = load_dataset()
+    def load_dataset(cls, using_cuda=False):
+        T, data_labels = _load_dataset(using_cuda=using_cuda)
 
         exam_dataset(T)
 

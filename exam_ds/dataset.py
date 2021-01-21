@@ -23,10 +23,11 @@ import csv
 
 # Dataset class
 class OdometryDataset(Dataset):
-    def __init__(self, data_folder, datasets, transform=None, labs=None):
+    def __init__(self, data_folder, datasets, transform=None, labs=None, using_cuda=False):
         self.data_folder = data_folder
         self.datasets = datasets
         self.labs = labs
+        self.using_cuda = using_cuda
 
         """
         Args:
@@ -131,6 +132,11 @@ class OdometryDataset(Dataset):
         # imu(feature: acce and gyro) (6, 200) -> dt(speed: dp/dt) (3)
         gt=gt.astype('float')
         IMU=IMU.astype('float')
+
+        if self.using_cuda:
+            gt = gt.cuda()
+            IMU = IMU.cuda()
+
         sample={'imu':IMU,'gt':gt,'time':T[0],'range':[minv,maxv]}
         if self.transform:
             sample = self.transform(sample)
