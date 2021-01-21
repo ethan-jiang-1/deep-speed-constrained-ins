@@ -81,7 +81,7 @@ def compute_loss(model, data):
     x_features = Variable(data['imu'].float())
 
     if g_using_cuda:
-        x_features.cuda()
+        x_features = x_features.cuda()
 
     # shape of x_features [10, 6, 200]
     y_pred = model(x_features)
@@ -208,7 +208,7 @@ class ExamModelDs(object):
         #model(Variable(data['imu'].float())).data[0].numpy() 
         var = Variable(features.float())
         if g_using_cuda:
-            var.cuda()
+            var = var.cuda()
 
         result = model(var)
         return result.data[0].numpy()
