@@ -263,10 +263,13 @@ class ExamModelDs(object):
 
     @classmethod
     def get_pred_model_from_trained_model(cls, model):
-        model_path = "tmp.pt"
+        model_path = "tmp_state"
         cls.dettach_eval_pred(model)
-        torch.save(model, model_path)
-        pred_model = torch.load(model_path, map_location=lambda storage, loc: storage)
+        torch.save(model.state_dict(), model_path)
+
+        pred_model = cls.get_empty_model()
+        pred_model.load_state_dict(torch.load(model_path))
+
         cls.attach_eval_pred(pred_model)
         return pred_model
 
