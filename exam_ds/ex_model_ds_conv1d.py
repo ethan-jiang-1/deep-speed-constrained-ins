@@ -95,6 +95,8 @@ def compute_loss(model, data):
     # [10, 1]
     y_gt_val =  Variable(y_gt)
     # [10]
+    if g_using_cuda:
+        y_gt_val = y_gt_val.cuda()
 
     # Compute and print loss.
     loss = loss_fn(y_pred_val, y_gt_val)
