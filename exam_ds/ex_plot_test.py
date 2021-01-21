@@ -44,10 +44,11 @@ def get_test_dataset(test_folders=None):
     Test = OdometryDataset("./../data_ds/", nfolders, transform=ToTensor())   
     return Test 
 
-def plot_model_on_test_dataset(model, test_folders=None, using_cuda=False):
+
+def plot_model_on_test_dataset(model, test_folders=None, using_cuda=False, batch_size=1):
 
     Test = get_test_dataset(test_folders)
-    test_Loader = DataLoader(Test, batch_size=1,shuffle=False, num_workers=1)
+    test_Loader = DataLoader(Test, batch_size=batch_size, shuffle=False, num_workers=1)
 
     pred_sp=[]
     gt_sp=[]
@@ -86,5 +87,5 @@ def plot_model_on_test_dataset(model, test_folders=None, using_cuda=False):
 
 class PlotTrainDs(object):
     @classmethod
-    def plot_all(cls, model, test_folders, using_cuda=False):
-        plot_model_on_test_dataset(model, test_folders=test_folders, using_cuda=False)
+    def plot_all(cls, model, test_folders, using_cuda=False, batch_size=1):
+        plot_model_on_test_dataset(model, test_folders=test_folders, using_cuda=using_cuda, batch_size=batch_size)
