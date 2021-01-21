@@ -7,6 +7,7 @@ import traceback
 from torchinfo import summary
 
 # Model
+g_using_cuda = False
 
 class vel_regressor_conv1d(torch.nn.Module):
     def __init__(self, Nin=6, Nout=1, Nlinear=5760):
@@ -78,6 +79,10 @@ def compute_loss(model, data):
     #loss_fn = torch.nn.MSELoss(reduction='sum')
 
     x_features = Variable(data['imu'].float())
+
+    if g_using_cuda:
+        x_features.cuda()
+
     # shape of x_features [10, 6, 200]
     y_pred = model(x_features)
     # shape of y_pred [10, 1]
@@ -95,7 +100,7 @@ def compute_loss(model, data):
     loss = loss_fn(y_pred_val, y_gt_val)
     return loss
 
-def train_model(model, T, epochs_num=10, batch_size=10, using_cuda=False):
+def train_model(model, T, epochs_num=10, batch_size=10):
     #model.model3.register_forward_hook(get_activation('model3'))
 
     #Configure data loaders and optimizer
@@ -167,15 +172,17 @@ class ExamModelDs(object):
 
     @classmethod
     def get_model_from_new_training(cls, T, epochs_num=20, save_model=False, batch_size=10, using_cuda=False):
+        global g_using_cuda
+        g_using_cuda = using_cuda
         model = None
         tls, vls = None, None
         try:    
             model = cls.get_empty_model()
-            if using_cuda:
+            if g_using_cuda:
                 model.cuda()
 
             if train_model:
-                tls, vls = train_model(model, T, epochs_num=epochs_num, batch_size=batch_size, using_cuda=using_cuda)
+                tls, vls = train_model(model, T, epochs_num=epochs_num, batch_size=batch_size)
             else:
                 raise ValueError("What?")
         except Exception as ex:
