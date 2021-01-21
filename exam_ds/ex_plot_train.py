@@ -24,8 +24,9 @@ def get_pred_gt_vals(model, data, using_cuda):
     
     return val_preds, val_gts
 
-def plot_pred_speed_ordered(model, T, using_cuda=False):
-    ordered_Loader = DataLoader(T, batch_size=1, shuffle=False, num_workers=0)
+
+def plot_pred_speed_ordered(model, T, using_cuda=False, batch_size=1):
+    ordered_Loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=0)
 
     # Load corresponding prediction and ground truth
     pred_sp=[]
@@ -50,8 +51,8 @@ def plot_pred_speed_ordered(model, T, using_cuda=False):
     plt.ylabel('Ground truth speed')
 
 
-def plot_bunch_confused(model, T, data_labels, using_cuda=False):
-    ordered_Loader = DataLoader(T, batch_size=1, shuffle=False, num_workers=0)
+def plot_bunch_confused(model, T, data_labels, using_cuda=False, batch_size=1):
+    ordered_Loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=0)
 
     dat_lab=[]
     for label in data_labels:
@@ -182,8 +183,8 @@ def plot_bunch_confused(model, T, data_labels, using_cuda=False):
 
 class PlotTrainDs(object):
     @classmethod
-    def plot_all(cls, model, T, data_labels, using_cuda=False):
+    def plot_all(cls, model, T, data_labels, using_cuda=False, batch_size=1):
         print("prepare and plot pred_speed_ordered...")
-        plot_pred_speed_ordered(model, T, using_cuda=using_cuda)
+        plot_pred_speed_ordered(model, T, using_cuda=using_cuda, batch_size=batch_size)
         print("prepare and plot plot_bunch_confused...")
-        plot_bunch_confused(model, T, data_labels, using_cuda=using_cuda)
+        plot_bunch_confused(model, T, data_labels, using_cuda=using_cuda, batch_size=batch_size)
