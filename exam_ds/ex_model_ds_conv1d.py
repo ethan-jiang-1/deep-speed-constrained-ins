@@ -213,6 +213,9 @@ class ExamModelDs(object):
             var = var.cuda()
 
         result = model(var)
+        if g_using_cuda:
+            result = result.cpu()
+
         return result.data[0].numpy()
 
     @classmethod
