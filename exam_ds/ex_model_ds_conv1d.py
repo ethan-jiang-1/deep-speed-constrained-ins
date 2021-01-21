@@ -57,7 +57,11 @@ def inspect_model(model, batch_size=10, enforced=False):
             input_size = (6, 200)
             batch_input_size = (batch_size, *input_size)
             print("batch_input_shape", batch_input_size)
-            summary(model, batch_input_size, verbose=2)
+            summary(model, batch_input_size, verbose=2, columns_name=["input_size",
+                                                                      "output_size",
+                                                                      "num_params",
+                                                                      "kernel_size",
+                                                                      "mult_adds"])
         model.model_examed = True
 
 
