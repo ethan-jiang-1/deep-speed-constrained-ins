@@ -230,12 +230,14 @@ class ExamModelDs(object):
     def save_trained_model(cls, model):
         try:
             model_path = cls.get_saved_model_path_name_local()
+            cls.dettach_eval_pred(model)
             torch.save(model, model_path)
             print("model saved at", model_path)
         except Exception as ex:
             print("exception ", ex)
         try:
             model_path = cls.get_saved_model_path_name_gdrive()
+            cls.dettach_eval_pred(model)
             torch.save(model, model_path)
             print("model saved at", model_path)
         except Exception as ex:
@@ -278,3 +280,8 @@ class ExamModelDs(object):
             return cls.eval_pred(model, features)
         if not hasattr(model, "eval_pred"):
             model.eval_pred = attached_eval_pred
+
+    @classmethod
+    def dettach_eval_pred(cls, model):
+        if hasattr(model, "eval_pred"):
+            del model.eval_pred
