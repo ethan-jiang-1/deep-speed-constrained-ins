@@ -262,7 +262,7 @@ class ExamModelDs(object):
         raise ValueError("no_saved_model_{}".format(model_path))
 
     @classmethod
-    def get_pred_model_from_trained_model(cls, model):
+    def get_pred_model_from_trained_model(cls, model, force_to_cpu=False, using_cuda=False):
         model_path = "tmp_state"
         
         # save no matter where model is come from cpu or gpu
@@ -270,9 +270,19 @@ class ExamModelDs(object):
         torch.save(model.state_dict(), model_path)
         
         # Load model in cpu
-        device = torch.device('cpu')
+        if force_to_cpu:
+            device = torch.device('cpu')
+        else:
+            if using_cuda:    
+                has_cuda = torch.cuda.is_available()
+                device = torch.device('cuda' if has_cuda else 'cpu')
+            else:
+                device = torch.device('cpu')
+
         pred_model = cls.get_empty_model()
         pred_model.load_state_dict(torch.load(model_path, map_location=device))
+        if force_to_cpu:
+            pred_model.cpu()
 
         cls.attach_eval_pred(pred_model)
         return pred_model
