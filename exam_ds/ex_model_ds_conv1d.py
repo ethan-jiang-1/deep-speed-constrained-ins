@@ -217,6 +217,7 @@ class ExamModelDs(object):
         if model is not None:
             if save_model:
                 cls.save_trained_model(model)
+            cls.attach_eval_pred(model)
         return model, tls, vls
 
     @classmethod
