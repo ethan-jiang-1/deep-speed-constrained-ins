@@ -49,8 +49,8 @@ class vel_regressor_conv1d(torch.nn.Module):
         return y
 
 
-def inspect_model(model, batch_size=10):
-    if model is not None and not hasattr(model, "model_examed"):
+def inspect_model(model, batch_size=10, enforced=False):
+    if model is not None and not hasattr(model, "model_examed") or enforced:
         print(model)        
         if not torch.cuda.is_available():
             # 6 channel, 200 samples/channel,  this does not include batch size
@@ -183,15 +183,15 @@ class ExamModelDs(object):
         return cls.saved_model_pathname_gdrive
 
     @classmethod
-    def exam_model(cls, model):
-        return inspect_model(model)
+    def exam_model(cls, model, batch_size=10, enforced=False):
+        return inspect_model(model, batch_size=batch_size, enforced=enforced)
 
     @classmethod
     def get_empty_model(cls):
         model = vel_regressor_conv1d()
         #if torch.cuda.is_available():
         #    model.to('cuda')
-        cls.exam_model(model)
+        # cls.exam_model(model)
         return model 
     
     @classmethod
