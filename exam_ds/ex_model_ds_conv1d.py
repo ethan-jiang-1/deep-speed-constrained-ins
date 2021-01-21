@@ -264,17 +264,15 @@ class ExamModelDs(object):
     @classmethod
     def get_pred_model_from_trained_model(cls, model):
         model_path = "tmp_state"
+        
+        # save no matter where model is come from cpu or gpu
         cls.dettach_eval_pred(model)
         torch.save(model.state_dict(), model_path)
-
-        state_dic = torch.load(model_path)
-
-        cpu_model_dict = {}
-        for key, val in state_dic.items():
-            cpu_model_dict[key] = val.cpu()
-
+        
+        # Load model in cpu
+        device = torch.device('cpu')
         pred_model = cls.get_empty_model()
-        pred_model.load_state_dict(cpu_model_dict)
+        pred_model.load_state_dict(torch.load(model_path, map_location=device))
 
         cls.attach_eval_pred(pred_model)
         return pred_model
