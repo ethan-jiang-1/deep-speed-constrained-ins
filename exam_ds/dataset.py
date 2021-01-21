@@ -134,8 +134,8 @@ class OdometryDataset(Dataset):
         IMU=IMU.astype('float')
 
         if self.using_cuda:
-            gt = gt.cuda()
-            IMU = IMU.cuda()
+            gt = torch.Tensor(gt).cuda()
+            IMU = torch.Tensor(IMU).cuda()
 
         sample={'imu':IMU,'gt':gt,'time':T[0],'range':[minv,maxv]}
         if self.transform:
