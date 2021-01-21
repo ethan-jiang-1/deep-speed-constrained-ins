@@ -48,7 +48,7 @@ def get_test_dataset(test_folders=None):
 def plot_model_on_test_dataset(model, test_folders=None, using_cuda=False, batch_size=1):
 
     Test = get_test_dataset(test_folders)
-    test_Loader = DataLoader(Test, batch_size=batch_size, shuffle=False, num_workers=1)
+    test_Loader = DataLoader(Test, batch_size=batch_size, shuffle=False, num_workers=0)
 
     pred_sp=[]
     gt_sp=[]
@@ -77,7 +77,7 @@ def plot_model_on_test_dataset(model, test_folders=None, using_cuda=False, batch
     plt.ylabel('ground truth speed')
 
     plt.figure(figsize=(6,6))
-    plt.plot(np.asarray(gt_sp),np.asarray(pred_sp),'.', label='test data')
+    plt.plot(np.asarray(gt_sp), np.asarray(pred_sp),'.', label='test data')
     plt.plot([0,2],[0,2],'k')
     plt.xlabel('gt (m/s)')
     plt.ylabel('prediction (m/s)')
