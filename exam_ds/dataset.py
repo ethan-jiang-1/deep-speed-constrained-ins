@@ -14,10 +14,10 @@ import torch
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, utils
-from torch.autograd import Variable
-import csv
+from torch.utils.data import Dataset  # , DataLoader
+#from torchvision import transforms, utils
+#from torch.autograd import Variable
+#import csv
 
 #dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -43,7 +43,7 @@ class OdometryDataset(Dataset):
         self.post=[]
         self.limits=[]
         self.limits.append(0)
-        plot=False
+        # plot=False
         self.cache = {}
         #scroll trough folders and attach data. Since there is not that many sequences, one array is used.
         for dataset in datasets:

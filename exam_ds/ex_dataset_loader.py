@@ -1,4 +1,4 @@
-import torch
+#import torch
 #import pandas as pd
 import os
 import numpy as np
@@ -14,7 +14,7 @@ import csv
 #from torchsummary import summary
 
 try:
-    import os
+    #import os
     #print(os.getcwd())
     os.chdir("exam_ds")
     #print(os.getcwd())
@@ -83,7 +83,7 @@ def find_and_plot_data_labels(folders, labs, using_cuda=False):
         while stay:
             tim=labs[ind][3]
             tim=np.round(np.floor(tim)*60+(tim-np.floor(tim))*100)
-            data_length=(2+(data[len(data)]['time'])-data[0]['time'])[0]        
+            # data_length=(2+(data[len(data)]['time'])-data[0]['time'])[0]        
             if labs[ind][3]==-1:            
                 stay=False
                 tim=10000
@@ -142,7 +142,7 @@ def ex_plot_sub_dataset(T):
         while stay:
             tim=labs[ind][3]
             tim=np.round(np.floor(tim)*60+(tim-np.floor(tim))*100)
-            data_length=(2+(data[len(data)]['time'])-data[0]['time'])[0]        
+            # data_length=(2+(data[len(data)]['time'])-data[0]['time'])[0]        
             if labs[ind][3]==-1:            
                 stay=False
                 tim=10000
@@ -211,7 +211,7 @@ def _load_dataset(using_cuda=False):
     # Create dataset reader.
     print("Final OdometryDataset")
     T = OdometryDataset("../data_ds", folders, transform=ToTensor(), labs=labs, using_cuda=using_cuda)
-    return T,  data_labels
+    return T, data_labels
 
 class DataLoaderDs(object):
     @classmethod

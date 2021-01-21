@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 
 try:
-    import os
+    #import os
     #print(os.getcwd())
     os.chdir("exam_ds")
     #print(os.getcwd())
@@ -72,7 +72,7 @@ def plot_model_on_test_dataset(model, test_folders=None):
     plt.plot(gt_sp)
     plt.ylabel('ground truth speed')
 
-    fig = plt.figure(figsize=(6,6))
+    plt.figure(figsize=(6,6))
     plt.plot(np.asarray(gt_sp),np.asarray(pred_sp),'.', label='test data')
     plt.plot([0,2],[0,2],'k')
     plt.xlabel('gt (m/s)')

@@ -24,7 +24,7 @@ def ex_write_ply_to_file(path, position, orientation,
                       length=1.0, 
                       kpoints=100, 
                       interval=100, 
-                      vobse = 0):
+                      vobse=0):
     """
     Visualize camera trajectory as ply file.
     
@@ -49,7 +49,7 @@ def ex_write_ply_to_file(path, position, orientation,
     num_cams = position.shape[0]
     assert orientation.shape[0] == num_cams
 
-    max_acceleration = 1.0
+    # max_acceleration = 1.0
     # if acceleration is not None:
     #     assert acceleration.shape[0] == num_cams
     #     max_acceleration = max(np.linalg.norm(acceleration, axis=1))

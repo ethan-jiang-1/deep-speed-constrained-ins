@@ -5,6 +5,7 @@ from torch.autograd import Variable
 import time
 import traceback
 from torchinfo import summary
+import os
 
 # Model
 g_using_cuda = False
@@ -93,7 +94,7 @@ def compute_loss(model, data):
     # shape of y_gt [10, 3]  
     y_gt = torch.norm(data['gt'], 2, 1).type(torch.FloatTensor)
     # [10, 1]
-    y_gt_val =  Variable(y_gt)
+    y_gt_val = Variable(y_gt)
     # [10]
     if g_using_cuda:
         y_gt_val = y_gt_val.cuda()
@@ -122,7 +123,7 @@ def train_model(model, T, epochs_num=10, batch_size=10):
     validation_loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=num_workers, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test_ndxs)))
 
     #define optimizer.
-    optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     tls=[]
     vls=[]
@@ -164,6 +165,22 @@ def train_model(model, T, epochs_num=10, batch_size=10):
     return tls, vls
 
 class ExamModelDs(object):
+    saved_model_pathname_local = "full_new.pt"
+    saved_model_pathname_gdrive = "/content/drive/MyDrive/full_new.pt"
+
+    @classmethod
+    def set_saved_model_path_name(cls, saved_model_path_name):
+        cls.saved_model_pathname_local = saved_model_path_name
+        cls.saved_model_pathname_gdrive = "/content/drive/MyDrive/" + saved_model_path_name
+
+    @classmethod
+    def get_saved_model_path_name_local(cls):
+        return cls.saved_model_pathname_local
+
+    @classmethod
+    def get_saved_model_path_name_gdrive(cls):
+        return cls.saved_model_pathname_gdrive
+
     @classmethod
     def exam_model(cls, model):
         return inspect_model(model)
@@ -198,16 +215,41 @@ class ExamModelDs(object):
         #save model
         if model is not None:
             if save_model:
-                torch.save(model,'./full_new.pt')
+                cls.save_trained_model(model)
             cls.attach_eval_pred(model)
         return model, tls, vls
 
     @classmethod
-    def get_model_from_trained_model(cls):
-        model= torch.load('./full_new.pt', map_location=lambda storage, loc: storage)
-        cls.exam_model(model)
-        cls.attach_eval_pred(model)
-        return model
+    def save_trained_model(cls, model):
+        try:
+            model_path = cls.get_saved_model_path_name_local()
+            torch.save(model, model_path)
+            print("model saved at", model_path)
+        except Exception as ex:
+            print("exception ", ex)
+        try:
+            model_path = cls.get_saved_model_path_name_gdrive()
+            torch.save(model, model_path)
+            print("model saved at", model_path)
+        except Exception as ex:
+            print("exception ", ex)
+    
+    @classmethod
+    def get_model_from_trained_model(cls, model_path=None):
+        model_path = cls.get_saved_model_path_name_local()
+        if os.path.isfile(model_path):
+            model= torch.load(model_path, map_location=lambda storage, loc: storage)
+            cls.exam_model(model)
+            cls.attach_eval_pred(model)
+            return model
+        model_path = cls.get_saved_model_path_name_gdrive()
+        if os.path.isfile(model_path):
+            model = torch.load(model_path, map_location=lambda storage, loc: storage)
+            cls.exam_model(model)
+            cls.attach_eval_pred(model)
+            return model
+
+        raise ValueError("no_saved_model_{}".format(model_path))
 
     @classmethod
     def eval_pred(cls, model, features):

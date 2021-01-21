@@ -60,13 +60,14 @@ def make_sync_data_for_ds():
         Mkit=np.column_stack((t,zer+7,zer,v[0],v[1],v[2],v[3],v[4],v[5],v[6]))
 
 
-        full=np.concatenate((M,Mkit))
+        #full=np.concatenate((M,Mkit))
 
 
         #sort to time vector
         #full = full[full[:,0].argsort()]
         #path= '../data_ds/advio-'+str(i).zfill(2)+'/iphone/imu-gyro.csv'
         #np.savetxt(path, full, delimiter=",",fmt='%.7f')
+        return M, Mkit
 
 
 if __name__ == "__main__":

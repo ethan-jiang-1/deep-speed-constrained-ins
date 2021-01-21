@@ -12,14 +12,14 @@
 
 import os
 import numpy as np
-import traceback
+# import traceback
 import matplotlib.pyplot as plt
 
 # dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 import sys
 
-from torch._C import Value
+# from torch._C import Value
 sys.path.append(os.path.dirname(__file__))
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
@@ -47,8 +47,8 @@ def plot_traning(tls, vls):
 
     # Plot loss
     plt.figure()
-    plt.plot(np.log(np.array(tls)),label = 'Training loss')
-    plt.plot(np.log(np.array(vls)),label = 'Validation loss')
+    plt.plot(np.log(np.array(tls)),label='Training loss')
+    plt.plot(np.log(np.array(vls)),label='Validation loss')
 
 
 def select_model(model_name):

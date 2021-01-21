@@ -61,6 +61,7 @@ def inspect_model(model, batch_size=10):
             summary(model, batch_input_size, verbose=2)
         model.model_examed = True
 
+
 model_activation = {}
 def get_activation(name):
     def hook(model, input, output):
@@ -91,7 +92,7 @@ def compute_loss(model, data):
     # shape of y_gt [10, 3]  
     y_gt = torch.norm(data['gt'], 2, 1).type(torch.FloatTensor)
     # [10, 1]
-    y_gt_val =  Variable(y_gt)
+    y_gt_val = Variable(y_gt)
     # [10]
 
     # Compute and print loss.
@@ -114,7 +115,7 @@ def train_model(model, T, epochs_num=20, batch_size=10, using_cuda=False):
     validation_loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=4, sampler=torch.utils.data.sampler.SubsetRandomSampler(list(test_ndxs)))
 
     #define optimizer.
-    optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     tls=[]
     vls=[]

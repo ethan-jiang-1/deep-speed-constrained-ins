@@ -179,18 +179,18 @@ class DataSyncAgent(object):
         for i in range(1000):
             secs_start = secs_pose[i]
             if secs_start >= secs_gyro[0] and \
-               secs_start >= secs_acce[0] and \
-               secs_start >= secs_magn[0]:
-               start_ndx = i
-               break
+                secs_start >= secs_acce[0] and \
+                secs_start >= secs_magn[0]:
+                start_ndx = i
+                break
 
         for i in range(len(secs_pose) - 1, len(secs_pose)-1000, -1):
             secs_end = secs_pose[i]
             if secs_end <= secs_gyro[-1] and \
-               secs_end <= secs_acce[-1] and \
-               secs_end <= secs_magn[-1]:
-               end_ndx = i
-               break        
+                secs_end <= secs_acce[-1] and \
+                secs_end <= secs_magn[-1]:
+                end_ndx = i
+                break        
 
         if start_ndx == -1 or end_ndx == -1:
             raise ValueError("no sec range")
