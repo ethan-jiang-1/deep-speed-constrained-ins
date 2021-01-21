@@ -95,7 +95,7 @@ def run_model(model_name="conv1d", load_model=False, plt_show=True):
         # test on test (not tranined)
         Ptt.plot_all(model, test_folders=["/static/dataset-04/"])
 
-        if plt_show():
+        if plt_show:
             plt.show()
 
 

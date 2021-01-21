@@ -19,12 +19,12 @@ def make_sync_data_on(root_path, todos=["gen_ply", "view_ply"], vobose=0, re_gen
     dsa = DataSyncAgent(root_path)
     dsa.load_raw_dfs(vobose=vobose)
 
-    if "gen_ply" in todos:
-        dsa.output_raw_ply(re_gen=re_gen)
+    #if "gen_ply" in todos:
+    #    dsa.output_raw_ply(re_gen=re_gen)
     if "view_ply" in todos:
         dsa.view_raw_ply(plys=["pose"])  #["arkit", "tango", "pose"])
-    if "sync" in todos:
-        dsa.output_sync(re_gen=re_gen)
+    #if "sync" in todos:
+    #    dsa.output_sync(re_gen=re_gen)
 
 def get_all_data_paths():
     root_paths = []

@@ -98,7 +98,7 @@ def compute_loss(model, data):
     loss = loss_fn(y_pred_val, y_gt_val)
     return loss
 
-def train_model(model, T, epochs_num=20, batch_size=10):
+def train_model(model, T, epochs_num=20, batch_size=10, using_cuda=False):
     #model.model3.register_forward_hook(get_activation('model3'))
 
     #Configure data loaders and optimizer
@@ -169,13 +169,16 @@ class ExamModelDs(object):
         return model        
 
     @classmethod
-    def get_model_from_new_training(cls, T, epochs_num=20, save_model=False, batch_size=10):
+    def get_model_from_new_training(cls, T, epochs_num=20, save_model=False, batch_size=10, using_cuda=False):
         model = None
         tls, vls = None, None
         try:    
             model = cls.get_empty_model()
+            if using_cuda:
+                model.cuda()
+
             if train_model:
-                tls, vls = train_model(model, T, epochs_num=epochs_num, batch_size=batch_size)
+                tls, vls = train_model(model, T, epochs_num=epochs_num, batch_size=batch_size, using_cuda=using_cuda)
             else:
                 raise ValueError("What?")
         except Exception as ex:
