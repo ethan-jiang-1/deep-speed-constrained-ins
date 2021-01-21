@@ -267,8 +267,14 @@ class ExamModelDs(object):
         cls.dettach_eval_pred(model)
         torch.save(model.state_dict(), model_path)
 
+        state_dic = torch.load(model_path)
+
+        cpu_model_dict = {}
+        for key, val in state_dic.items():
+            cpu_model_dict[key] = val.cpu()
+
         pred_model = cls.get_empty_model()
-        pred_model.load_state_dict(torch.load(model_path))
+        pred_model.load_state_dict(cpu_model_dict)
 
         cls.attach_eval_pred(pred_model)
         return pred_model

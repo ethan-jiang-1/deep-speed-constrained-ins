@@ -10,9 +10,13 @@ def _get_val_gt(data_gt):
     val = val.type(torch.FloatTensor)
     return val.numpy()
 
-def get_pred_gt_vals(model, data):
+def get_pred_gt_vals(model, data, using_cuda=False):
     # val_pred = Emdl.eval_pred(model, data['imu'])
-    val_pred = model.eval_pred(data['imu'])
+
+    imu_data = data['imu']
+
+    val_pred = model.eval_pred(imu_data)
+
     val_preds = val_pred.ravel().tolist()
 
     val_gt = _get_val_gt(data['gt'])
@@ -20,8 +24,8 @@ def get_pred_gt_vals(model, data):
     
     return val_preds, val_gts
 
-def plot_pred_speed_ordered(model, T):
-    ordered_Loader = DataLoader(T, batch_size=1, shuffle=False, num_workers=1)
+def plot_pred_speed_ordered(model, T, using_cuda=False):
+    ordered_Loader = DataLoader(T, batch_size=1, shuffle=False, num_workers=0)
 
     # Load corresponding prediction and ground truth
     pred_sp=[]
@@ -29,7 +33,7 @@ def plot_pred_speed_ordered(model, T):
     for i_batch, sample_batched in enumerate(ordered_Loader):
         data = sample_batched
 
-        val_preds, val_gts = get_pred_gt_vals(model, data)
+        val_preds, val_gts = get_pred_gt_vals(model, data, using_cuda=using_cuda)
 
         pred_sp += val_preds
         gt_sp += val_gts
@@ -46,8 +50,8 @@ def plot_pred_speed_ordered(model, T):
     plt.ylabel('Ground truth speed')
 
 
-def plot_bunch_confused(model, T, data_labels):
-    ordered_Loader = DataLoader(T, batch_size=1, shuffle=False, num_workers=1)
+def plot_bunch_confused(model, T, data_labels, using_cuda=False):
+    ordered_Loader = DataLoader(T, batch_size=1, shuffle=False, num_workers=0)
 
     dat_lab=[]
     for label in data_labels:
@@ -61,7 +65,7 @@ def plot_bunch_confused(model, T, data_labels):
     for i_batch, sample_batched in enumerate(ordered_Loader):
         data=sample_batched
 
-        val_preds, val_gts = get_pred_gt_vals(model, data)
+        val_preds, val_gts = get_pred_gt_vals(model, data, using_cuda=using_cuda)
 
         pred_sp += val_preds
         gt_sp += val_gts
@@ -178,8 +182,8 @@ def plot_bunch_confused(model, T, data_labels):
 
 class PlotTrainDs(object):
     @classmethod
-    def plot_all(cls, model, T, data_labels):
+    def plot_all(cls, model, T, data_labels, using_cuda=False):
         print("prepare and plot pred_speed_ordered...")
-        plot_pred_speed_ordered(model, T)
+        plot_pred_speed_ordered(model, T, using_cuda=using_cuda)
         print("prepare and plot plot_bunch_confused...")
-        plot_bunch_confused(model, T, data_labels)
+        plot_bunch_confused(model, T, data_labels, using_cuda=using_cuda)
