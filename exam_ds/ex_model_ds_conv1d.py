@@ -207,6 +207,9 @@ class ExamModelDs(object):
     def eval_pred(cls, model, features):
         #model(Variable(data['imu'].float())).data[0].numpy() 
         var = Variable(features.float())
+        if g_using_cuda:
+            var.cuda()
+
         result = model(var)
         return result.data[0].numpy()
 
