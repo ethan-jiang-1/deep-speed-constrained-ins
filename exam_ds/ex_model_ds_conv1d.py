@@ -58,10 +58,10 @@ def inspect_model(model, batch_size=10, enforced=False):
             batch_input_size = (batch_size, *input_size)
             print("batch_input_shape", batch_input_size)
             summary(model, batch_input_size, verbose=2, col_names=["input_size",
-                                                                      "output_size",
-                                                                      "num_params",
-                                                                      "kernel_size",
-                                                                      "mult_adds"])
+                                                                    "output_size",
+                                                                    "num_params",
+                                                                    "kernel_size",
+                                                                    "mult_adds"])
         model.model_examed = True
 
 
@@ -292,23 +292,23 @@ class ExamModelDs(object):
         return pred_model
 
     @classmethod
-    def eval_pred(cls, model, features):
+    def eval_pred(cls, model, features, using_cuda):
         #model(Variable(data['imu'].float())).data[0].numpy() 
         var = Variable(features.float())
-        if g_using_cuda:
+        if using_cuda:
             var = var.cuda()
 
         cls.attach_eval_pred(model)
         result = model(var)
-        if g_using_cuda:
+        if using_cuda:
             result = result.cpu()
 
         return result.data[0].numpy()
 
     @classmethod
     def attach_eval_pred(cls, model):
-        def attached_eval_pred(features):
-            return cls.eval_pred(model, features)
+        def attached_eval_pred(features, using_cuda):
+            return cls.eval_pred(model, features, using_cuda)
         if not hasattr(model, "eval_pred"):
             model.eval_pred = attached_eval_pred
 

@@ -10,12 +10,12 @@ def _get_val_gt(data_gt):
     val = val.type(torch.FloatTensor)
     return val.numpy()
 
-def get_pred_gt_vals(model, data, using_cuda=False):
+def get_pred_gt_vals(model, data, using_cuda):
     # val_pred = Emdl.eval_pred(model, data['imu'])
 
     imu_data = data['imu']
 
-    val_pred = model.eval_pred(imu_data)
+    val_pred = model.eval_pred(imu_data, using_cuda)
 
     val_preds = val_pred.ravel().tolist()
 

@@ -17,9 +17,8 @@ def _get_val_gt(data_gt):
     val = val.type(torch.FloatTensor)
     return val.numpy()
 
-def get_pred_gt_vals(model, data):
-    #val_pred = Emdl.eval_pred(model, data['imu'])
-    val_pred = model.eval_pred(data['imu'])
+def get_pred_gt_vals(model, data, using_cuda):
+    val_pred = model.eval_pred(data['imu'], using_cuda)
     val_preds = val_pred.ravel().tolist()
 
     val_gt = _get_val_gt(data['gt'])
@@ -45,7 +44,7 @@ def get_test_dataset(test_folders=None):
     Test = OdometryDataset("./../data_ds/", nfolders, transform=ToTensor())   
     return Test 
 
-def plot_model_on_test_dataset(model, test_folders=None):
+def plot_model_on_test_dataset(model, test_folders=None, using_cuda=False):
 
     Test = get_test_dataset(test_folders)
     test_Loader = DataLoader(Test, batch_size=1,shuffle=False, num_workers=1)
@@ -56,7 +55,7 @@ def plot_model_on_test_dataset(model, test_folders=None):
     for i_batch, sample_batched in enumerate(test_Loader):
         data=sample_batched
 
-        val_preds, val_gts = get_pred_gt_vals(model, data)
+        val_preds, val_gts = get_pred_gt_vals(model, data, using_cuda)
 
         pred_sp += val_preds
         gt_sp += val_gts
@@ -87,5 +86,5 @@ def plot_model_on_test_dataset(model, test_folders=None):
 
 class PlotTrainDs(object):
     @classmethod
-    def plot_all(cls, model, test_folders):
-        plot_model_on_test_dataset(model, test_folders=test_folders)
+    def plot_all(cls, model, test_folders, using_cuda=False):
+        plot_model_on_test_dataset(model, test_folders=test_folders, using_cuda=False)
