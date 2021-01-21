@@ -149,7 +149,7 @@ class ToTensor(object):
     """Convert ndarrays in sample to Tensors."""
     def __call__(self, sample):
         imu=sample['imu']
-        if isinstance(a, np.ndarray):
+        if isinstance(imu, np.ndarray):
             gt=sample['gt']
             T=sample['time']
             R=sample['range']
