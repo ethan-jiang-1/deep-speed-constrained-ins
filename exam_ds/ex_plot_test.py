@@ -61,8 +61,12 @@ def plot_model_on_test_dataset(model, test_folders=None, using_cuda=False, batch
         pred_sp += val_preds
         gt_sp += val_gts
 
-
-        t.append(data['time'])
+        if batch_size == 1:
+            t.append(data['time'])
+        else:
+            for ndx in range(len(data['time'])):
+                t.append(data['time'][ndx])
+        #t.append(data['time'])
 
     plt.figure()
     plt.subplot(211)
