@@ -51,8 +51,8 @@ class vel_regressor_conv1d(torch.nn.Module):
 
 def inspect_model(model, batch_size=10, enforced=False):
     if model is not None and not hasattr(model, "model_examed") or enforced:
-        print(model)        
-        if not torch.cuda.is_available():
+        try:
+            #if not torch.cuda.is_available():
             # 6 channel, 200 samples/channel,  this does not include batch size
             input_size = (6, 200)
             batch_input_size = (batch_size, *input_size)
@@ -62,6 +62,9 @@ def inspect_model(model, batch_size=10, enforced=False):
                                                                     "num_params",
                                                                     "kernel_size",
                                                                     "mult_adds"])
+        except Exception as ex:
+            print("Exception occured ", ex)
+            print(model)
         model.model_examed = True
 
 
