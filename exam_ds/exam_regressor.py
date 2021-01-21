@@ -84,7 +84,7 @@ def run_model(model_name="conv1d", load_model=False, plt_show=True):
     else:
         model = Emdl.get_empty_model()
         Emdl.exam_model(model)
-        model, tls, vls = Emdl.keep_train_model(model, T, epochs_num=2)
+        model, tls, vls = Emdl.keep_train_model(model, T, epochs_num=1)
         plot_traning(tls, vls)
     
 
@@ -92,10 +92,10 @@ def run_model(model_name="conv1d", load_model=False, plt_show=True):
 
     if model is not None and hasattr(model, "eval_pred"):
         # plot on trained testset (tain/val)
-        Ptn.plot_all(model, T, data_labels)
+        Ptn.plot_all(model, T, data_labels, batch_size=8)
 
         # test on test (not tranined)
-        Ptt.plot_all(model, test_folders=["/static/dataset-04/"])
+        Ptt.plot_all(model, test_folders=["/static/dataset-04/"], batch_size=4)
 
         if plt_show:
             plt.show()

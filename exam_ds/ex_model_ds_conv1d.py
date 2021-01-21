@@ -306,7 +306,7 @@ class ExamModelDs(object):
         #if using_cuda:
         result = result.cpu()
 
-        return result.data[0].numpy()
+        return result.data.numpy()
 
     @classmethod
     def attach_eval_pred(cls, model):

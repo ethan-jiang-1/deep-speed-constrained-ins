@@ -58,7 +58,6 @@ def plot_bunch_confused(model, T, data_labels, using_cuda=False, batch_size=1):
     for label in data_labels:
         dat_lab=dat_lab+label
 
-
     #Plot scatter of prediction and ground truth with labels.
     pred_sp=[]
     gt_sp=[]
@@ -71,7 +70,12 @@ def plot_bunch_confused(model, T, data_labels, using_cuda=False, batch_size=1):
         pred_sp += val_preds
         gt_sp += val_gts
 
-        R.append(np.array(data['range']))
+        if batch_size == 1:
+            R.append(np.array(data['range']))
+        else:
+            for ndx in range(len(data['range'][0])):
+                R.append(np.array([data['range'][0][ndx], data['range'][1][ndx]]))
+    print(len(R))
     print(len(dat_lab))
     print(len(gt_sp))
     pred=np.asarray(pred_sp)
