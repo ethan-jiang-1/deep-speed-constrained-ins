@@ -1,3 +1,4 @@
+from numpy.lib.npyio import save
 import torch
 import numpy as np
 from torch.utils.data import DataLoader
@@ -192,20 +193,20 @@ class ExamModelDs(object):
         #    model.to('cuda')
         cls.exam_model(model)
         return model 
-
+    
     @classmethod
-    def get_model_from_new_training(cls, T, epochs_num=20, save_model=False, batch_size=10, using_cuda=False):
+    def keep_train_model(cls, model, T, epochs_num=20, save_model=False, batch_size=10, using_cuda=False):
         global g_using_cuda
         g_using_cuda = using_cuda
-        model = None
-        tls, vls = None, None
-        try:    
-            model = cls.get_empty_model()
-            if g_using_cuda:
-                model.cuda()
 
+        if g_using_cuda:
+            model.cuda()
+
+        tls, vls = None, None
+        try:
             if train_model:
-                tls, vls = train_model(model, T, epochs_num=epochs_num, batch_size=batch_size)
+                tls, vls = train_model(
+                    model, T, epochs_num=epochs_num, batch_size=batch_size)
             else:
                 raise ValueError("What?")
         except Exception as ex:
@@ -218,6 +219,13 @@ class ExamModelDs(object):
                 cls.save_trained_model(model)
             cls.attach_eval_pred(model)
         return model, tls, vls
+
+    @classmethod
+    def get_model_from_new_training(cls, T, epochs_num=20, save_model=False, batch_size=10, using_cuda=False):
+        global g_using_cuda
+        g_using_cuda = using_cuda
+        model = cls.get_empty_model()
+        return cls.keep_train_model(model, T, epochs_num=epochs_num, save_model=save_model, batch_size=batch_size, using_cuda=using_cuda)
 
     @classmethod
     def save_trained_model(cls, model):
