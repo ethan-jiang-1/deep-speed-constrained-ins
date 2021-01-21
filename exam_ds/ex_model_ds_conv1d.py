@@ -262,6 +262,15 @@ class ExamModelDs(object):
         raise ValueError("no_saved_model_{}".format(model_path))
 
     @classmethod
+    def get_pred_model_from_trained_model(cls, model):
+        model_path = "tmp.pt"
+        cls.dettach_eval_pred(model)
+        torch.save(model, model_path)
+        pred_model = torch.load(model_path, map_location=lambda storage, loc: storage)
+        cls.attach_eval_pred(pred_model)
+        return pred_model
+
+    @classmethod
     def eval_pred(cls, model, features):
         #model(Variable(data['imu'].float())).data[0].numpy() 
         var = Variable(features.float())
