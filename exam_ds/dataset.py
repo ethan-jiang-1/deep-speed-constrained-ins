@@ -149,8 +149,12 @@ class ToTensor(object):
     """Convert ndarrays in sample to Tensors."""
     def __call__(self, sample):
         imu=sample['imu']
-        gt=sample['gt']
-        T=sample['time']
-        R=sample['range']
-        #print(type(R))
-        return {'imu': torch.from_numpy(imu),'gt':torch.from_numpy(gt),'time':T,'range':R}
+        if isinstance(a, np.ndarray):
+            gt=sample['gt']
+            T=sample['time']
+            R=sample['range']
+            #print(type(R))
+            return {'imu': torch.from_numpy(imu),'gt':torch.from_numpy(gt),'time':T,'range':R}
+        else:
+            return sample
+
