@@ -1,4 +1,4 @@
-#import torch
+import torch
 #import pandas as pd
 import os
 import numpy as np
@@ -114,7 +114,7 @@ def find_and_plot_data_labels(folders, labs, using_cuda=False):
         #     plt.grid(b=True,axis='y')   
         data_labels.append(label)
     if using_cuda:
-        data_labels = np.array(data_labels).cuda()
+        data_labels = torch.Tensor(np.array(data_labels)).cuda()
     
     return data_labels
 
