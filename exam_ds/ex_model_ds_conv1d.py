@@ -249,12 +249,14 @@ class ExamModelDs(object):
             model= torch.load(model_path, map_location=lambda storage, loc: storage)
             cls.exam_model(model)
             cls.attach_eval_pred(model)
+            print("load pre-trained model from", model_path)
             return model
         model_path = cls.get_saved_model_path_name_gdrive()
         if os.path.isfile(model_path):
             model = torch.load(model_path, map_location=lambda storage, loc: storage)
             cls.exam_model(model)
             cls.attach_eval_pred(model)
+            print("load pre-trained model from", model_path)
             return model
 
         raise ValueError("no_saved_model_{}".format(model_path))
