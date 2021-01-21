@@ -113,8 +113,8 @@ def find_and_plot_data_labels(folders, labs, using_cuda=False):
         #     plt.yticks([0,1,2,3,4], ['Standing','Walking','Stairs','Escalator','Elevator'])
         #     plt.grid(b=True,axis='y')   
         data_labels.append(label)
-    if using_cuda:
-        data_labels = torch.Tensor(np.array(data_labels)).cuda()
+    #if using_cuda:
+    #    data_labels = torch.Tensor(np.array(data_labels)).cuda()
     
     return data_labels
 
