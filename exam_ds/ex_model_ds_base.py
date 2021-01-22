@@ -31,13 +31,20 @@ def _inspect_model(model, batch_size=10, enforced=False):
 #    return val
 
 class ExamModelBase(object):
-    vel_regressor = None
-    train_model = None
+    # subclass need implement followings
+    @classmethod
+    def ex_get_regressor_klass(cls):
+        return None
+    
+    @classmethod
+    def ex_get_train_func(cls):
+        return None
+    
+    @classmethod
+    def ex_get_saved_model_pathnames(cls):
+        return "full_new.pt", "/content/drive/MyDrive/full_new.pt"
 
-
-    saved_model_pathname_local = "full_new.pt"
-    saved_model_pathname_gdrive = "/content/drive/MyDrive/full_new.pt"
-
+    #
     @classmethod
     def set_saved_model_path_name(cls, saved_model_path_name):
         cls.saved_model_pathname_local = saved_model_path_name
@@ -45,11 +52,13 @@ class ExamModelBase(object):
 
     @classmethod
     def get_saved_model_path_name_local(cls):
-        return cls.saved_model_pathname_local
+        pnl, png = cls.ex_get_saved_model_pathnames()
+        return pnl
 
     @classmethod
     def get_saved_model_path_name_gdrive(cls):
-        return cls.saved_model_pathname_gdrive
+        pnl, png = cls.ex_get_saved_model_pathnames()
+        return png
 
     @classmethod
     def exam_model(cls, model, batch_size=10, enforced=False):
@@ -57,7 +66,8 @@ class ExamModelBase(object):
 
     @classmethod
     def get_empty_model(cls):
-        model = cls.vel_regressor()
+        modelKlass = cls.ex_get_regressor_klass()
+        model = modelKlass()
         #if torch.cuda.is_available():
         #    model.to('cuda')
         # cls.exam_model(model)
@@ -73,9 +83,9 @@ class ExamModelBase(object):
 
         tls, vls = None, None
         try:
-            if cls.train_model:
-                tls, vls = cls.train_model(
-                    model, T, epochs_num=epochs_num, batch_size=batch_size)
+            tain_func = cls.ex_get_train_func()
+            if tain_func:
+                tls, vls = tain_func(model, T, epochs_num=epochs_num, batch_size=batch_size)
             else:
                 raise ValueError("What?")
         except Exception as ex:

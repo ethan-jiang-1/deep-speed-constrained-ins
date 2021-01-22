@@ -43,19 +43,19 @@ def compute_loss(model, data):
 
     if get_using_cuda():
         x_features = x_features.cuda()
-
-    # shape of x_features [10, 6, 200]
+    # 10 is the batch size, bz
+    # shape of x_features [bz, 6, 200]
     y_pred = model(x_features)
-    # shape of y_pred [10, 1]
+    # shape of y_pred [bz, 1]
     y_pred_val = y_pred.view(-1)
-    # [10]
+    # [bz]
 
     # Sample corresponding ground truth.
-    # shape of y_gt [10, 3]
+    # shape of y_gt [bz, 3]
     y_gt = torch.norm(data['gt'], 2, 1).type(torch.FloatTensor)
-    # [10, 1]
+    # convert 3 direction speed into 1 scalar [bz, 3] -> [bz, 1]
     y_gt_val = Variable(y_gt)
-    # [10]
+    # [hz]
     if get_using_cuda():
         y_gt_val = y_gt_val.cuda()
 

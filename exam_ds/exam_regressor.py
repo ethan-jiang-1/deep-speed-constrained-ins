@@ -53,17 +53,19 @@ def plot_traning(tls, vls):
 
 def select_model(model_name):
     #Import python functions.
-    if model_name in ["conv1d", "lstm"]:
-        print("model selected {}".format(model_name))
+    print("model selected {}".format(model_name))
 
-        Emdl = None
-        if model_name == "conv1d":
-            from ex_model_ds_conv1d import ExamModelDs as Emdl
-        else:
-            from ex_model_ds_lstm import ExamModelDs as Emdl
-        if Emdl is not None:
-            return Emdl
-    raise ValueError("no_model_for{}".format(model_name))
+    Emdl = None
+    if model_name == "conv1d":
+        from ex_model_ds_conv1d import ExamModelDs as Emdl
+    elif model_name == "lstm":
+        from ex_model_ds_lstm import ExamModelDs as Emdl
+    elif model_name == "resnet18":
+        from ex_model_ds_resnet18 import ExamModelDs as Emdl
+
+    if Emdl is None:
+        raise ValueError("no_model_for{}".format(model_name))
+    return Emdl
     
 
 def run_model(model_name="conv1d", load_model=False, plt_show=True):
@@ -109,8 +111,9 @@ def check_model(model_name="conv1d"):
 
 
 if __name__ == "__main__":
-    model_name="lstm"
+    #model_name="lstm"
     #model_name="conv1d"
+    model_name = "resnet18"
 
     load_model = False
     inspect_model_only = False
