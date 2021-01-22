@@ -109,8 +109,8 @@ def check_model(model_name="conv1d"):
 
 
 if __name__ == "__main__":
-    #model_name="lstm"
-    model_name="conv1d"
+    model_name="lstm"
+    #model_name="conv1d"
 
     load_model = False
     inspect_model_only = False
