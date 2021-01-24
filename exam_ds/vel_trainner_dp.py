@@ -119,8 +119,13 @@ def train_model(model, T, epochs_num=10, batch_size=10, early_stop=False):
             val_loss += loss.data
 
         # Save loss and print status.
-        tls.append(acc_loss / (len(T) * 9 / 10))
-        vls.append(val_loss / (len(T) / 10))
+        # Save loss and print status.
+        val = acc_loss / (len(T) * 9 / 10)
+        if hasattr(val, "item"):
+            val = val.item()
+        tls.append(val)
+        val = val_loss / (len(T) / 10)
+        vls.append(val)
         elapsed = time.time() - ti
 
         print("epochs {} elapsed: {:.2f}(sec)\t\tloss_train: {:.4f}\tloss_val: {:.4f}".format(
