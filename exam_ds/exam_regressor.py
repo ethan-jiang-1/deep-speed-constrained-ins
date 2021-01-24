@@ -64,6 +64,10 @@ def select_model(model_name):
         from ex_model_ds_resnet18 import ExamModelDs as Emdl
     elif model_name == "org":
         from ex_model_ds_org import ExamModelDs as Emdl
+    elif model_name == "org_da":
+        from ex_model_ds_org_da import ExamModelDs as Emdl
+    elif model_name == "org_db":
+        from ex_model_ds_org_db import ExamModelDs as Emdl
 
     if Emdl is None:
         raise ValueError("no_model_for{}".format(model_name))
@@ -114,10 +118,15 @@ def check_model(model_name="conv1d"):
 
 
 if __name__ == "__main__":
+    #ok
     #model_name="org"
     #model_name="lstm"
+    #model_name="org_da"
+    model_name="org_db"
+
+    #failed
     #model_name="conv1d"
-    model_name = "resnet18"
+    #model_name = "resnet18"
 
     load_model = False
     inspect_model_only = False
