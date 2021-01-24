@@ -130,7 +130,7 @@ def train_model(model, T, epochs_num=10, batch_size=10, early_stop=False):
             if len(tls) > 10:
                 tls_l10 = tls[-10:-1]
                 tls_l10 = np.array(tls_l10)
-                if tls_l10.mean() * 0.99 <= tls_l10.min():
+                if np.mean(tls_l10) * 0.99 <= np.amin(tls_l10):
                     print("no improvement in last 10 rounds, stop training.")
                     break
 
