@@ -15,7 +15,7 @@ import torch
 
 
 class VelRegressorOrg(torch.nn.Module):
-    def __init__(self, Nin=6, Nout=1, Nlinear=7440):  #112 * 60):
+    def __init__(self, Nin=6, Nout=1, Nlinear=7440):  # 112 * 60):
         super(VelRegressorOrg, self).__init__()
         # Convolutional layers
         self.model1 = torch.nn.Sequential(
