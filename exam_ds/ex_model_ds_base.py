@@ -74,7 +74,7 @@ class ExamModelBase(object):
         return model 
     
     @classmethod
-    def keep_train_model(cls, model, T, epochs_num=20, save_model=False, batch_size=10, using_cuda=False):
+    def keep_train_model(cls, model, T, epochs_num=20, save_model=False, batch_size=10, using_cuda=False, early_stop=False):
         global g_using_cuda
         g_using_cuda = using_cuda
 
@@ -85,7 +85,7 @@ class ExamModelBase(object):
         try:
             tain_func = cls.ex_get_train_func()
             if tain_func:
-                tls, vls = tain_func(model, T, epochs_num=epochs_num, batch_size=batch_size)
+                tls, vls = tain_func(model, T, epochs_num=epochs_num, batch_size=batch_size, early_stop=early_stop)
             else:
                 raise ValueError("What?")
         except Exception as ex:

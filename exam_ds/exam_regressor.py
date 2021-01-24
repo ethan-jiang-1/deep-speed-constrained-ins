@@ -36,11 +36,11 @@ except:
 try:
     from exam_ds.ex_dataset_loader import DataLoaderDs as Dsl
     from exam_ds.ex_plot_train import PlotTrainDs as Ptn
-    from exam_ds.ex_plot_test import PlotTrainDs as Ptt
+    from exam_ds.ex_plot_test import PlotTestDs as Ptt
 except:
     from ex_dataset_loader import DataLoaderDs as Dsl
     from ex_plot_train import PlotTrainDs as Ptn
-    from ex_plot_test import PlotTrainDs as Ptt
+    from ex_plot_test import PlotTestDs as Ptt
 
 
 def plot_traning(tls, vls):
@@ -74,7 +74,7 @@ def select_model(model_name):
     return Emdl
     
 
-def run_model(model_name="conv1d", load_model=False, plt_show=True):
+def run_model(model_name="conv1d", load_model=False, plt_show=True, early_stop=False):
     T, data_labels = Dsl.load_dataset()
 
     Dsl.plot_dataset(T)
@@ -92,7 +92,7 @@ def run_model(model_name="conv1d", load_model=False, plt_show=True):
     else:
         model = Emdl.get_empty_model()
         Emdl.exam_model(model)
-        model, tls, vls = Emdl.keep_train_model(model, T, epochs_num=1)
+        model, tls, vls = Emdl.keep_train_model(model, T, epochs_num=1, early_stop=early_stop)
         if tls is not None:
             plot_traning(tls, vls)
     
@@ -104,7 +104,8 @@ def run_model(model_name="conv1d", load_model=False, plt_show=True):
         Ptn.plot_all(model, T, data_labels, batch_size=4)
 
         # test on test (not tranined)
-        Ptt.plot_all(model, test_folders=["/static/dataset-04/"], batch_size=4)
+        Ptt.plot_pred_result(model, test_folders=[
+                             "/static/dataset-04/"], batch_size=4)
 
         if plt_show:
             plt.show()

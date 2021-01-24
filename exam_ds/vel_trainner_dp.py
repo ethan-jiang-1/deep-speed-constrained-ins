@@ -64,7 +64,7 @@ def compute_loss(model, data):
     return loss
 
 
-def train_model(model, T, epochs_num=10, batch_size=10):
+def train_model(model, T, epochs_num=10, batch_size=10, early_stop=False):
     #model.model3.register_forward_hook(get_activation('model3'))
 
     #Configure data loaders and optimizer
@@ -125,5 +125,13 @@ def train_model(model, T, epochs_num=10, batch_size=10):
 
         print("epochs {} elapsed: {:.2f}(sec)\t\tloss_train: {:.4f}\tloss_val: {:.4f}".format(
             t, elapsed, tls[-1], vls[-1]))
+
+        if early_stop:
+            if len(tls) > 10:
+                tls_l10 = tls[-10:-1]
+                tls_l10 = np.array(tls_l10)
+                if tls.mean() * 0.99 <= tls.min():
+                    print("no improvement in last 10 rounds, stop training.")
+                    break
 
     return tls, vls
