@@ -62,6 +62,8 @@ def select_model(model_name):
         from ex_model_ds_lstm import ExamModelDs as Emdl
     elif model_name == "resnet18":
         from ex_model_ds_resnet18 import ExamModelDs as Emdl
+    elif model_name == "org":
+        from ex_model_ds_org import ExamModelDs as Emdl
 
     if Emdl is None:
         raise ValueError("no_model_for{}".format(model_name))
@@ -87,7 +89,8 @@ def run_model(model_name="conv1d", load_model=False, plt_show=True):
         model = Emdl.get_empty_model()
         Emdl.exam_model(model)
         model, tls, vls = Emdl.keep_train_model(model, T, epochs_num=1)
-        plot_traning(tls, vls)
+        if tls is not None:
+            plot_traning(tls, vls)
     
 
     Emdl.exam_model(model)
@@ -111,9 +114,10 @@ def check_model(model_name="conv1d"):
 
 
 if __name__ == "__main__":
+    model_name="org"
     #model_name="lstm"
     #model_name="conv1d"
-    model_name = "resnet18"
+    #model_name = "resnet18"
 
     load_model = False
     inspect_model_only = False

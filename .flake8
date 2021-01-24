@@ -1,3 +1,7 @@
 [flake8]
 ignore = E501 E302 E128 W293 W291 E265 W504 E402 W391 E225 E231 E226 E122 E722 E303 E203 E125 E127
-exclude = DCI-training-0.0.2.py, model.py, sync-data.py, data_ds, dataset, .git, __pycache__,
+exclude = DCI-training-0.0.2.py, model.py, sync-data.py, 
+        data_ds, 
+        .git, 
+        __pycache__,
+        venv

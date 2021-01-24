@@ -27,6 +27,7 @@ class ResNet1D_101(ResNet1D):
         super(ResNet1D_101, self).__init__(_input_channel, _output_channel, BasicBlock1D, [3, 4, 23, 3],
                                           base_plane=64, output_block=FCOutputModule, **_fc_config)
 
+
 '''
 def get_model(arch, _input_channel, _output_channel):
     network = None
