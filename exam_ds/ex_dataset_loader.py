@@ -32,7 +32,7 @@ except:
 
 
 
-def get_data_folders_and_labs():
+def get_train_data_folders():
     #add path to used folders
     #Advio
     folders=[]
@@ -52,13 +52,36 @@ def get_data_folders_and_labs():
     folders.append("/swing/dataset-01/")
     #folders.append("/swing/dataset-02/")
 
+    return folders
+
+def get_test_data_folders():
+    #add path to used folders
+    #Advio
+    folders = []
+    #for i in [1,2,3,5,6,8,9,10,11,12,13,15,16,17,18,19,20,21,22]::
+    #    path = '/advio-' + str(i).zfill(2) + '/'
+    #    folders.append(path)
+    for i in [4,7,14,17]:
+        path= '/advio-'+str(i).zfill(2)+'/'
+        folders.append(path)
+
+    #Extra data
+    #folders.append("/static/dataset-01/")
+    #folders.append("/static/dataset-02/")
+    #folders.append("/static/dataset-03/")
+    folders.append("/static/dataset-04/")
+    #folders.append("/swing/dataset-01/")
+    folders.append("/swing/dataset-02/")
+    return folders
+
+def get_labs():
     #Load saved motion labels
     labs=[]
     with open('labels.csv', 'r') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         for row in spamreader:
             labs.append([int(row[0]),int(row[1]),int(row[2]),float(row[3]),])
-    return folders, labs
+    return labs
 
 
 
@@ -204,7 +227,8 @@ def ex_plot_dataset(T):
     plt.plot(sp)
 
 def _load_dataset(using_cuda=False):
-    folders, labs = get_data_folders_and_labs()
+    folders = get_train_data_folders()
+    labs = get_labs()
 
     data_labels = find_and_plot_data_labels(folders, labs, using_cuda=using_cuda)
     
@@ -233,3 +257,11 @@ class DataLoaderDs(object):
     @classmethod
     def plot_dataset_internals(cls, T, skip_ratio=2):
         T.plot_dataset_internals(skip_ratio=skip_ratio)
+
+    @classmethod
+    def get_train_folders(cls):
+        return get_train_data_folders()
+
+    @classmethod
+    def get_test_folders(cls):
+        return get_test_data_folders()
