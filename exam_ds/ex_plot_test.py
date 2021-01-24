@@ -45,7 +45,7 @@ def get_test_dataset(test_folders=None):
     return Test 
 
 
-def plot_model_on_test_dataset(model, test_folders=None, using_cuda=False, batch_size=1):
+def plot_model_pred_result(model, test_folders=None, using_cuda=False, batch_size=1, test=True):
 
     Test = get_test_dataset(test_folders)
     test_Loader = DataLoader(Test, batch_size=batch_size, shuffle=False, num_workers=0)
@@ -76,8 +76,11 @@ def plot_model_on_test_dataset(model, test_folders=None, using_cuda=False, batch
     plt.plot(gt_sp)
     plt.ylabel('ground truth speed')
 
+    label = "test data"
+    if not test:
+        label = "train data"
     plt.figure(figsize=(6,6))
-    plt.plot(np.asarray(gt_sp), np.asarray(pred_sp),'.', label='test data')
+    plt.plot(np.asarray(gt_sp), np.asarray(pred_sp),'.', label=label)
     plt.plot([0,2],[0,2],'k')
     plt.xlabel('gt (m/s)')
     plt.ylabel('prediction (m/s)')
@@ -91,5 +94,5 @@ def plot_model_on_test_dataset(model, test_folders=None, using_cuda=False, batch
 
 class PlotTrainDs(object):
     @classmethod
-    def plot_all(cls, model, test_folders, using_cuda=False, batch_size=1):
-        plot_model_on_test_dataset(model, test_folders=test_folders, using_cuda=using_cuda, batch_size=batch_size)
+    def plot_pred_result(cls, model, test_folders, using_cuda=False, batch_size=1, test=True):
+        plot_model_pred_result(model, test_folders=test_folders, using_cuda=using_cuda, batch_size=batch_size, test=test)
