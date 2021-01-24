@@ -20,4 +20,4 @@ class ExamModelDs(ExamModelBase):
 
     @classmethod
     def ex_get_saved_model_pathnames(cls):
-        return "md_conv1d.pt", "/content/drive/MyDrive/md_conv1d.pt"
+        return "md_lstm.pt", "/content/drive/MyDrive/md_lstm.pt"
