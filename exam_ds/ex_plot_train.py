@@ -51,7 +51,7 @@ def plot_pred_speed_ordered(model, T, using_cuda=False, batch_size=1):
     plt.ylabel('Ground truth speed')
 
 
-def plot_bunch_confused(model, T, data_labels, using_cuda=False, batch_size=1):
+def plot_pred_categorized_speed(model, T, data_labels, using_cuda=False, batch_size=1):
     ordered_Loader = DataLoader(T, batch_size=batch_size, shuffle=False, num_workers=0)
 
     dat_lab=[]
@@ -190,5 +190,17 @@ class PlotTrainDs(object):
     def plot_all(cls, model, T, data_labels, using_cuda=False, batch_size=1):
         print("prepare and plot pred_speed_ordered...")
         plot_pred_speed_ordered(model, T, using_cuda=using_cuda, batch_size=batch_size)
-        print("prepare and plot plot_bunch_confused...")
-        plot_bunch_confused(model, T, data_labels, using_cuda=using_cuda, batch_size=batch_size)
+        print("prepare and plot plot_pred_categorized_speed...")
+        plot_pred_categorized_speed(model, T, data_labels, using_cuda=using_cuda, batch_size=batch_size)
+
+    @classmethod
+    def plot_speed_cmp(cls, model, T, data_labels, using_cuda=False, batch_size=1):
+        print("prepare and plot pred_speed_ordered...")
+        plot_pred_speed_ordered(
+            model, T, using_cuda=using_cuda, batch_size=batch_size)
+
+    @classmethod
+    def plot_speed_cat(cls, model, T, data_labels, using_cuda=False, batch_size=1):
+        print("prepare and plot plot_pred_categorized_speed...")
+        plot_pred_categorized_speed(model, T, data_labels,
+                            using_cuda=using_cuda, batch_size=batch_size)
