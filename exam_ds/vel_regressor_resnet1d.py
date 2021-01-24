@@ -3,7 +3,7 @@ try:
 except:
     from vel_model_resnet1d import ResNet1D, BasicBlock1D, FCOutputModule
 
-_input_channel, _output_channel = 6, 2
+_input_channel, _output_channel = 6, 1
 _fc_config = {'fc_dim': 512, 'in_dim': 7, 'dropout': 0.5, 'trans_planes': 128}
 
 
@@ -17,7 +17,7 @@ class ResNet1D_18(ResNet1D):
 class ResNet1D_50(ResNet1D):
     def __init__(self):
         _fc_config['fc_dim'] = 1024
-        super(ResNet1D_50, self).__init__(_input_channel, _output_channel, BasicBlock1D, [2, 2, 2, 2],
+        super(ResNet1D_50, self).__init__(_input_channel, _output_channel, BasicBlock1D, [3, 4, 6, 3],
                                           base_plane=64, output_block=FCOutputModule, kernel_size=3, **_fc_config)
 
 

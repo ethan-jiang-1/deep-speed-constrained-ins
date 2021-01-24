@@ -46,9 +46,9 @@ def compute_loss(model, data):
 
     # shape of x_features [10, 6, 200]
     y_pred = model(x_features)
-    # shape of y_pred [20, 1]
+    # shape of y_pred [10, 1]
     y_pred_val = y_pred.view(-1)
-    # [20]
+    # [10]
 
     # Sample corresponding ground truth.
     # shape of y_gt [10, 3]

@@ -114,10 +114,10 @@ def check_model(model_name="conv1d"):
 
 
 if __name__ == "__main__":
-    model_name="org"
+    #model_name="org"
     #model_name="lstm"
     #model_name="conv1d"
-    #model_name = "resnet18"
+    model_name = "resnet18"
 
     load_model = False
     inspect_model_only = False
