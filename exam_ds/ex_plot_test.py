@@ -92,7 +92,7 @@ def plot_model_pred_result(model, test_folders=None, using_cuda=False, batch_siz
     axes.legend()
 
 
-class PlotTrainDs(object):
+class PlotTestDs(object):
     @classmethod
     def plot_pred_result(cls, model, test_folders, using_cuda=False, batch_size=1, test=True):
         plot_model_pred_result(model, test_folders=test_folders, using_cuda=using_cuda, batch_size=batch_size, test=test)
