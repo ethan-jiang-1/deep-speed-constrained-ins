@@ -12,16 +12,21 @@ try:
 except:
     pass
 
-def _get_val_gt(data_gt):
+def _get_val_gt_vec_speed(data_gt):
     val = torch.norm(data_gt, 2, 1)
     val = val.type(torch.FloatTensor)
     return val.numpy()
 
 def get_pred_gt_vals(model, data, using_cuda):
     val_pred = model.eval_pred(data['imu'], using_cuda)
+
+    #inputs: imu [bz, 6, 200]
+    #outputs: speed [bz]
+    # which we only get one speed no matter what direction it is
     val_preds = val_pred.ravel().tolist()
 
-    val_gt = _get_val_gt(data['gt'])
+    # we only get one speed out of 3 (i.e. what norm(x, 2, 1) does, to make sqrt(vx**2 + vy**2 + vz**2))
+    val_gt = _get_val_gt_vec_speed(data['gt'])
     val_gts = val_gt.ravel().tolist()
     
     return val_preds, val_gts

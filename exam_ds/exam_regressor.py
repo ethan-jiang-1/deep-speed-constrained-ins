@@ -68,6 +68,8 @@ def select_model(model_name):
         from ex_model_ds_org_da import ExamModelDs as Emdl
     elif model_name == "org_db":
         from ex_model_ds_org_db import ExamModelDs as Emdl
+    elif model_name == "convdp":
+        from ex_model_ds_convdp import ExamModelDs as Emdl
 
     if Emdl is None:
         raise ValueError("no_model_for{}".format(model_name))
@@ -121,13 +123,14 @@ def check_model(model_name="conv1d"):
 if __name__ == "__main__":
     #ok
     #model_name="org"
-    #model_name="lstm"
     #model_name="org_da"
-    model_name="org_db"
-
-    #failed
+    #model_name="org_db"
     #model_name="conv1d"
-    #model_name = "resnet18"
+    model_name = "convdp"
+    
+    #failed
+    #model_name="lstm" -- no-learning
+    #model_name = "resnet18"  -- tensor mis-match
 
     load_model = False
     inspect_model_only = False
