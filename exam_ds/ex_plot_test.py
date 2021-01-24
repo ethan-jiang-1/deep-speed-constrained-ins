@@ -80,7 +80,10 @@ def plot_model_pred_result(model, test_folders=None, using_cuda=False, batch_siz
     if not test:
         label = "train data"
     plt.figure(figsize=(6,6))
-    plt.plot(np.asarray(gt_sp), np.asarray(pred_sp),'.', label=label)
+    if not test:
+        plt.plot(np.asarray(gt_sp), np.asarray(pred_sp), '.', label=label)
+    else:
+        plt.plot(np.asarray(gt_sp), np.asarray(pred_sp), 'o', label=label)
     plt.plot([0,2],[0,2],'k')
     plt.xlabel('gt (m/s)')
     plt.ylabel('prediction (m/s)')
