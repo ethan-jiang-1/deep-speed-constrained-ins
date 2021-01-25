@@ -103,7 +103,7 @@ def plot_model_pred_result(model, test_folders=None, using_cuda=False, batch_siz
     axes.legend()
 
 
-def plot_model_pred_categorized_result(model, test_folders=None, data_labels=None, using_cuda=False, batch_size=1):
+def plot_model_pred_categorized_result(model, test_folders=None, data_labels=None, using_cuda=False, batch_size=1, test=True):
 
     labs = get_labs()
 
@@ -177,15 +177,15 @@ def plot_model_pred_categorized_result(model, test_folders=None, data_labels=Non
     plt.figure(figsize=(8, 8))
     #Scatter plot.
     test = np.array(stat)
-    plt.plot(test[:, 0], test[:, 1], 'r.', label='static', markersize=msize)
+    plt.plot(test[:, 0], test[:, 1], 'r*', label='static', markersize=msize)
     test = np.array(stair)
-    plt.plot(test[:, 0], test[:, 1], 'g.', label='stair', markersize=msize)
+    plt.plot(test[:, 0], test[:, 1], 'g*', label='stair', markersize=msize)
     test = np.array(walk)
-    plt.plot(test[:, 0], test[:, 1], 'b.', label='walk', markersize=msize)
+    plt.plot(test[:, 0], test[:, 1], 'b*', label='walk', markersize=msize)
     test = np.array(esc)
-    plt.plot(test[:, 0], test[:, 1], 'k.', label='escalator', markersize=msize)
+    plt.plot(test[:, 0], test[:, 1], 'k*', label='escalator', markersize=msize)
     test = np.array(ele)
-    plt.plot(test[:, 0], test[:, 1], 'y.', label='elevator', markersize=msize)
+    plt.plot(test[:, 0], test[:, 1], 'y*', label='elevator', markersize=msize)
 
     plt.plot([0, 1.5], [0, 1.5], 'k')
     plt.xlabel('gt (m/s)')
@@ -204,5 +204,5 @@ class PlotTestDs(object):
         plot_model_pred_result(model, test_folders=test_folders, using_cuda=using_cuda, batch_size=batch_size, test=test)
 
     @classmethod
-    def plot_pred_result_categrozied(cls, model, test_folders, using_cuda=False, test=True):
-        plot_model_pred_categorized_result(model, test_folders=test_folders, data_labels=None, using_cuda=using_cuda, batch_size=1)
+    def plot_pred_result_categrozied(cls, model, test_folders, using_cuda=False, batch_size=1, test=True):
+        plot_model_pred_categorized_result(model, test_folders=test_folders, data_labels=None, using_cuda=using_cuda, batch_size=batch_size, test=test)
