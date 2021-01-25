@@ -12,7 +12,10 @@ try:
 except:
     pass
 
-from exam_ds.ex_dataset_loader import get_labs, find_plot_data_labels
+try:
+    from exam_ds.ex_dataset_loader import get_labs, find_plot_data_labels
+except:
+    from ex_dataset_loader import get_labs, find_plot_data_labels
 
 
 def _get_val_gt_vec_speed(data_gt):
