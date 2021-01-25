@@ -85,7 +85,7 @@ def get_labs():
 
 
 
-def find_and_plot_data_labels(folders, labs, using_cuda=False):
+def find_plot_data_labels(folders, labs, using_cuda=False):
     #visualize labels in sample vector.
     ind=0
     acc_lab=0
@@ -230,7 +230,7 @@ def _load_dataset(using_cuda=False):
     folders = get_train_data_folders()
     labs = get_labs()
 
-    data_labels = find_and_plot_data_labels(folders, labs, using_cuda=using_cuda)
+    data_labels = find_plot_data_labels(folders, labs, using_cuda=using_cuda)
     
     # Create dataset reader.
     print("Final OdometryDataset")

@@ -12,6 +12,9 @@ try:
 except:
     pass
 
+from exam_ds.ex_dataset_loader import get_labs, find_plot_data_labels
+
+
 def _get_val_gt_vec_speed(data_gt):
     val = torch.norm(data_gt, 2, 1)
     val = val.type(torch.FloatTensor)
@@ -100,7 +103,106 @@ def plot_model_pred_result(model, test_folders=None, using_cuda=False, batch_siz
     axes.legend()
 
 
+def plot_model_pred_categorized_result(model, test_folders=None, data_labels=None, using_cuda=False, batch_size=1):
+
+    labs = get_labs()
+
+    data_labels = find_plot_data_labels(test_folders, labs, using_cuda=using_cuda)
+
+    Test = get_test_dataset(test_folders)
+    #test_Loader = DataLoader(Test, batch_size=batch_size,
+    #                         shuffle=False, num_workers=0)
+    ordered_Loader = DataLoader(
+        Test, batch_size=batch_size, shuffle=False, num_workers=0)
+
+    dat_lab = []
+    for label in data_labels:
+        dat_lab = dat_lab + label
+
+    #Plot scatter of prediction and ground truth with labels.
+    pred_sp = []
+    gt_sp = []
+    R = []
+    for i_batch, sample_batched in enumerate(ordered_Loader):
+        data = sample_batched
+
+        val_preds, val_gts = get_pred_gt_vals(
+            model, data, using_cuda=using_cuda)
+
+        pred_sp += val_preds
+        gt_sp += val_gts
+
+        if batch_size == 1:
+            R.append(np.array(data['range']))
+        else:
+            for ndx in range(len(data['range'][0])):
+                R.append(
+                    np.array([data['range'][0][ndx], data['range'][1][ndx]]))
+    print(len(R))
+    print(len(dat_lab))
+    print(len(gt_sp))
+    pred = np.asarray(pred_sp)
+    sp = np.asarray(gt_sp)
+    stat = []
+    stair = []
+    walk = []
+    esc = []
+    ele = []
+
+    Rstat = []
+    Rstair = []
+    Rwalk = []
+    Resc = []
+    Rele = []
+
+    #Separte by label
+    for i in range(0, len(dat_lab)):
+        if dat_lab[i] == 0:
+            stat.append([sp[i], pred[i]])
+            Rstat.append(R[i])
+        elif dat_lab[i] == 1:
+            walk.append([sp[i], pred[i]])
+            Rwalk.append(R[i])
+        elif dat_lab[i] == 2:
+            stair.append([sp[i], pred[i]])
+            Rstair.append(R[i])
+        elif dat_lab[i] == 3:
+            esc.append([sp[i], pred[i]])
+            Resc.append(R[i])
+        else:
+            ele.append([sp[i], pred[i]])
+            Rele.append(R[i])
+
+    msize = 3
+    plt.figure(figsize=(8, 8))
+    #Scatter plot.
+    test = np.array(stat)
+    plt.plot(test[:, 0], test[:, 1], 'r.', label='static', markersize=msize)
+    test = np.array(stair)
+    plt.plot(test[:, 0], test[:, 1], 'g.', label='stair', markersize=msize)
+    test = np.array(walk)
+    plt.plot(test[:, 0], test[:, 1], 'b.', label='walk', markersize=msize)
+    test = np.array(esc)
+    plt.plot(test[:, 0], test[:, 1], 'k.', label='escalator', markersize=msize)
+    test = np.array(ele)
+    plt.plot(test[:, 0], test[:, 1], 'y.', label='elevator', markersize=msize)
+
+    plt.plot([0, 1.5], [0, 1.5], 'k')
+    plt.xlabel('gt (m/s)')
+    plt.ylabel('prediction (m/s)')
+
+    #plot histograms by label
+    axes = plt.gca()
+    axes.set_xlim((0.0, 1.5))
+    axes.set_ylim([0.0, 1.5])
+    axes.legend()
+
+
 class PlotTestDs(object):
     @classmethod
     def plot_pred_result(cls, model, test_folders, using_cuda=False, batch_size=1, test=True):
         plot_model_pred_result(model, test_folders=test_folders, using_cuda=using_cuda, batch_size=batch_size, test=test)
+
+    @classmethod
+    def plot_pred_result_categrozied(cls, model, test_folders, using_cuda=False, test=True):
+        plot_model_pred_categorized_result(model, test_folders=test_folders, data_labels=None, using_cuda=using_cuda, batch_size=1)

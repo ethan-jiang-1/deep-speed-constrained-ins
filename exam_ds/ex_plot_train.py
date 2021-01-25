@@ -109,6 +109,7 @@ def plot_pred_categorized_speed(model, T, data_labels, using_cuda=False, batch_s
         else:
             ele.append([sp[i],pred[i]])
             Rele.append(R[i])
+
     msize=3
     plt.figure(figsize=(8,8))
     #Scatter plot.
