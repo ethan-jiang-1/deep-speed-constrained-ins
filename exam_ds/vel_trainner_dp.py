@@ -1,9 +1,15 @@
+from csv import excel
 import torch
 import numpy as np
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 import time
 import os
+
+try:
+    from exam_ds.ex_early_stopping import EarlyStopping
+except:
+    from ex_early_stopping import EarlyStopping
 
 g_using_cuda = None
 def get_using_cuda():
@@ -88,6 +94,8 @@ def train_model(model, T, epochs_num=10, batch_size=10, early_stop=False):
     #define optimizer.
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
+    early_stopping = EarlyStopping(patience=10, verbose=True)
+
     tls = []
     vls = []
 
@@ -132,11 +140,10 @@ def train_model(model, T, epochs_num=10, batch_size=10, early_stop=False):
             t, elapsed, tls[-1], vls[-1]))
 
         if early_stop:
-            if len(tls) > 10:
-                tls_l10 = tls[-10:-1]
-                tls_l10 = np.array(tls_l10)
-                if np.mean(tls_l10) * 0.99 <= np.amin(tls_l10):
-                    print("no improvement in last 10 rounds, stop training.")
-                    break
+            early_stopping(val_loss, model)
+
+            if early_stopping.early_stop:
+                print("Early stopping")
+                break
 
     return tls, vls
