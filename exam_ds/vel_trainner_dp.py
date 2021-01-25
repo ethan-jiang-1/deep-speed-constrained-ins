@@ -94,7 +94,7 @@ def train_model(model, T, epochs_num=10, batch_size=10, early_stop=False):
     #define optimizer.
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-    early_stopping = EarlyStopping(patience=10, verbose=True, path=None)
+    early_stopping = EarlyStopping(patience=8, verbose=True, path=None)
 
     tls = []
     vls = []
