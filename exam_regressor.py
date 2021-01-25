@@ -17,31 +17,9 @@ import matplotlib.pyplot as plt
 
 # dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-import sys
-
-# from torch._C import Value
-sys.path.append(os.path.dirname(__file__))
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
-try:
-    import os
-    #print(os.getcwd())
-    os.chdir("exam_ds")
-    #print(os.getcwd())
-except:
-    pass
-
-
-#Import python functions.
-try:
-    from exam_ds.ex_dataset_loader import DataLoaderDs as Dsl
-    from exam_ds.ex_plot_train import PlotTrainDs as Ptn
-    from exam_ds.ex_plot_test import PlotTestDs as Ptt
-except:
-    from ex_dataset_loader import DataLoaderDs as Dsl
-    from ex_plot_train import PlotTrainDs as Ptn
-    from ex_plot_test import PlotTestDs as Ptt
-
+from exam_ds.ex_dataset_loader import DataLoaderDs as Dsl
+from exam_ds.ex_plot_train import PlotTrainDs as Ptn
+from exam_ds.ex_plot_test import PlotTestDs as Ptt
 
 def plot_traning(tls, vls):
 
@@ -57,19 +35,19 @@ def select_model(model_name):
 
     Emdl = None
     if model_name == "conv1d":
-        from ex_model_ds_conv1d import ExamModelDs as Emdl
+        from exam_ds.ex_model_ds_conv1d import ExamModelDs as Emdl
     elif model_name == "lstm":
-        from ex_model_ds_lstm import ExamModelDs as Emdl
+        from exam_ds.ex_model_ds_lstm import ExamModelDs as Emdl
     elif model_name == "resnet18":
-        from ex_model_ds_resnet18 import ExamModelDs as Emdl
+        from exam_ds.ex_model_ds_resnet18 import ExamModelDs as Emdl
     elif model_name == "org":
-        from ex_model_ds_org import ExamModelDs as Emdl
+        from exam_ds.ex_model_ds_org import ExamModelDs as Emdl
     elif model_name == "org_da":
-        from ex_model_ds_org_da import ExamModelDs as Emdl
+        from exam_ds.ex_model_ds_org_da import ExamModelDs as Emdl
     elif model_name == "org_db":
-        from ex_model_ds_org_db import ExamModelDs as Emdl
+        from exam_ds.ex_model_ds_org_db import ExamModelDs as Emdl
     elif model_name == "convdp":
-        from ex_model_ds_convdp import ExamModelDs as Emdl
+        from exam_ds.ex_model_ds_convdp import ExamModelDs as Emdl
 
     if Emdl is None:
         raise ValueError("no_model_for{}".format(model_name))

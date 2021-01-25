@@ -12,22 +12,15 @@
 import pandas as pd
 import numpy as np
 
-try:
-    import os
-    print(os.getcwd())
-    os.chdir("exam_ds")
-    print(os.getcwd())
-except:
-    pass
 
 def make_sync_data_for_ds():
     for i in range(1,24):  
         #Read data
-        path= '../data_ds/advio-'+str(i).zfill(2)+'/iphone/arkit.csv'
+        path= 'data_ds/advio-'+str(i).zfill(2)+'/iphone/arkit.csv'
         arkit=pd.read_csv(path,names=list('tabcdefg'))
-        path= '../data_ds/advio-'+str(i).zfill(2)+'/iphone/accelerometer.csv'
+        path= 'data_ds/advio-'+str(i).zfill(2)+'/iphone/accelerometer.csv'
         acc= pd.read_csv(path,names=list('tabc'))
-        path= '../data_ds/advio-'+str(i).zfill(2)+'/iphone/gyro.csv'
+        path= 'data_ds/advio-'+str(i).zfill(2)+'/iphone/gyro.csv'
         gyro= pd.read_csv(path,names=list('tabc'))
 
 
