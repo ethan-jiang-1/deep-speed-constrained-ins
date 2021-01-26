@@ -50,11 +50,13 @@ class OdometryDataset(Dataset):
             imu_path=data_folder+dataset+"iphone/imu-gyro.csv"
             data = pd.read_csv(imu_path,names=list('tlabcdefghijk'))
             pos=data[data['l']==7]
-            imu=data[data['l']==34]      
-            self.imut.append(imu[list('t')])
+            imu=data[data['l']==34]
+
+            self.imut.append(imu[list('t')])      # ts for imu
             self.imu.append(imu[list('abcdef')])  # w_x, w_y, w_z, a_x, a_y, a_z
-            self.post.append(pos[list('t')])
-            self.pos.append(pos[list('bcd')])  # pos_x, pos_y, pos_z  
+            self.post.append(pos[list('t')])      # ts for pos
+            self.pos.append(pos[list('bcd')])     # pos_x, pos_y, pos_z  
+            
             self.transform = transform
             self.limits.append(self.limits[ind]+len(self.imu[ind])-300)
              
@@ -94,44 +96,54 @@ class OdometryDataset(Dataset):
             return self.cache[idx]
 
         if idx > len(self):
-            raise ValueError('Index out of range')
-        else:
-            idx = idx*100
+            raise ValueError('Index out of range(0)')
 
-        dset = None       
+        idx = idx*100
+        dset = None 
+        ndx = None      
         for index in range(0,len(self.limits)):
+            # search dset(subset from external file) which contain data for idx
             if idx >= self.limits[index] and idx < self.limits[index+1]:
                 dset=index
                 off = np.random.randint(low=50, high=100)
-                idx=idx - self.limits[index] + off
+                ndx = idx - self.limits[index] + off
                 break
+        if dset is None:
+            raise ValueError("Index out of range(1)")
         
-        IMU=self.imu[dset][idx:idx+200].values
+        #IMU (200, 6)
+        IMU=self.imu[dset][ndx:ndx+200].values
         #acc=IMU[0:3][1]
-
+        #IMU (200, 6) -> (6,200)
         IMU=IMU.swapaxes(0, 1)
 
-        t=(self.imut[dset])[idx:idx+200].values
+        #t (200, 1)
+        t=(self.imut[dset])[ndx:ndx+200].values
 
+        #scalar time: ti:from / te:to in sec
         ti=np.min(t)
         te=np.max(t)
 
+        #filter to help filter out what we need out of large seq
         inde=np.logical_and([self.post[dset]['t'].values<te] , [self.post[dset]['t'].values>ti])
         inde=np.squeeze(inde)
 
+        #posi is selected pos from ti to te in dset
         posi=self.pos[dset][inde].values
-        dt=np.diff(self.post[dset][inde].values,axis=0)
         dp=np.diff(posi,axis=0)
-        T=self.post[dset][inde].values
-        dT=T[-1]-T[0]
-        dP=posi[:][-1]-posi[:][0]
 
-        minv=np.min(np.sqrt(np.sum(np.square(dp/dt),axis=1)))
-        maxv=np.max(np.sqrt(np.sum(np.square(dp/dt),axis=1)))
-        
-        gt=np.mean((dp/dt),axis=0)
-        gt=dP/dT
-        
+        #dt is selected post(ts for pos) from ti to te in dset
+        tsi = self.post[dset][inde].values
+        dt=np.diff(tsi,axis=0)
+
+        minv = np.min(np.sqrt(np.sum(np.square(dp / dt), axis=1)))
+        maxv = np.max(np.sqrt(np.sum(np.square(dp / dt), axis=1)))
+
+        #dT=tsi[-1]-tsi[0]
+        #dP=posi[:][-1]-posi[:][0]
+        # gt=dP/dT  # should be same as below
+        gt=np.mean((dp / dt), axis=0)
+
         # construct the imu -> gt mapping
         # imu(feature: acce and gyro) (6, 200) -> dt(speed: dp/dt) (3)
         gt=gt.astype('float')
@@ -141,7 +153,7 @@ class OdometryDataset(Dataset):
             gt = torch.Tensor(gt).cuda()
             IMU = torch.Tensor(IMU).cuda()
 
-        sample={'imu':IMU,'gt':gt,'time':T[0],'range':[minv,maxv]}
+        sample={'imu':IMU,'gt':gt,'time':tsi[0],'range':[minv,maxv]}
         if self.transform:
             sample = self.transform(sample)
         

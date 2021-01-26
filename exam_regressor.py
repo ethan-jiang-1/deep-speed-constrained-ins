@@ -10,7 +10,7 @@
 # Licence.txt, included with the software, for details.
 
 
-import os
+#import os
 import numpy as np
 # import traceback
 import matplotlib.pyplot as plt
